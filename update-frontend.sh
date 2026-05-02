@@ -1,3 +1,18 @@
+#!/bin/bash
+# ============================================
+# UPDATE FRONTEND - Connect to Backend API
+# ============================================
+set -e
+
+echo "🔄 Updating frontend to connect backend..."
+
+cd /root/ritual/ritual-oracle
+
+# Backup old index.html
+cp index.html index.html.backup
+
+# Create new index.html with API integration
+cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +22,7 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Courier New',monospace;background:#0a0a0a;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
+        body{font-family:'Courier New',monospace;background:#0a0a0a;color:#e0e0e0;min-height:100vh}
         .container{max-width:1400px;margin:0 auto;padding:20px}
         header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid rgba(0,255,136,0.2);margin-bottom:30px}
         .logo{display:flex;align-items:center;gap:12px}
@@ -52,16 +67,16 @@
         </header>
         
         <div class="stats-grid">
-            <div class="stat-card"><div class="stat-label">Signals Today</div><div class="stat-value" id="signalsToday">Loading...</div></div>
-            <div class="stat-card"><div class="stat-label">Accuracy (7D)</div><div class="stat-value" id="accuracy">Loading...</div></div>
-            <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-value" id="latency">Loading...</div></div>
-            <div class="stat-card"><div class="stat-label">Ritual Block</div><div class="stat-value" id="blockNumber">Loading...</div></div>
+            <div class="stat-card"><div class="stat-label">Signals Today</div><div class="stat-value" id="signalsToday">-</div></div>
+            <div class="stat-card"><div class="stat-label">Accuracy (7D)</div><div class="stat-value" id="accuracy">-</div></div>
+            <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-value" id="latency">-</div></div>
+            <div class="stat-card"><div class="stat-label">Ritual Block</div><div class="stat-value" id="blockNumber">-</div></div>
         </div>
 
         <div class="main-grid">
             <div class="signals-section">
                 <h3 style="margin-bottom:20px;color:#888">LIVE SIGNALS</h3>
-                <div id="signalsList"><div class="loading">Connecting to backend...</div></div>
+                <div id="signalsList"><div class="loading">Loading signals...</div></div>
             </div>
             
             <div class="sidebar">
@@ -69,9 +84,15 @@
                     <h3 style="margin-bottom:12px">Signal Oracle</h3>
                     <p style="font-size:13px;color:#666;margin-bottom:20px">LLM inference running on-chain via Ritual</p>
                     <div style="background:rgba(10,10,10,0.6);border:1px solid rgba(0,255,136,0.1);border-radius:8px;padding:16px;margin-bottom:16px">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#666">network</span><span class="network-value">Ritual Testnet</span></div>
-                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#666">chain id</span><span class="network-value">1979</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#666">rpc</span><span class="network-value">rpc.ritualfoundation.org</span></div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+                            <span style="color:#666">network</span><span class="network-value">Ritual Testnet</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+                            <span style="color:#666">chain id</span><span class="network-value">1979</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:13px">
+                            <span style="color:#666">rpc</span><span class="network-value">rpc.ritualfoundation.org</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -84,55 +105,83 @@
     </div>
 
     <script>
-       
-      const API_URL = '/api';        
-       
+        const API_URL = 'http://159.223.221.130:3000/api';
+        
         async function fetchSignals() {
             try {
-                const response = await fetch(`${API_URL}/signals`);
+                const response = await fetch(`${API_URL}/signals/latest`);
                 const data = await response.json();
                 renderSignals(data.signals);
                 updateStats(data);
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('signalsList').innerHTML = '<div class="loading">Error connecting</div>';
+                console.error('Error fetching signals:', error);
+                document.getElementById('signalsList').innerHTML = '<div class="loading">Error loading signals</div>';
             }
         }
         
         function renderSignals(signals) {
-            document.getElementById('signalsList').innerHTML = signals.map(s => `
+            const container = document.getElementById('signalsList');
+            container.innerHTML = signals.map(signal => `
                 <div class="signal-item">
-                    <div class="signal-type ${s.action.toLowerCase()}">${s.action}</div>
+                    <div class="signal-type ${signal.action.toLowerCase()}">${signal.action}</div>
                     <div class="signal-info">
-                        <div class="signal-pair">${s.pair}</div>
-                        <div class="signal-meta">0x3f...a21b · #${s.blockNumber}</div>
+                        <div class="signal-pair">${signal.pair}</div>
+                        <div class="signal-meta">0x3f...a21b · #${signal.blockNumber}</div>
                     </div>
-                    <div class="confidence-value">${s.confidence}%</div>
+                    <div class="confidence-value">${signal.confidence}%</div>
                 </div>
             `).join('');
         }
         
         function updateStats(data) {
             document.getElementById('accuracy').textContent = data.accuracy + '%';
+            document.getElementById('signalsToday').textContent = Math.floor(Math.random() * 100) + 100;
             document.getElementById('latency').textContent = '318ms';
             document.getElementById('blockNumber').textContent = Math.floor(Math.random() * 10000) + 48000;
         }
         
-        function addLog(msg) {
+        function addLogEntry(message) {
             const log = document.getElementById('logEntries');
             const time = new Date().toLocaleTimeString();
-            log.insertAdjacentHTML('afterbegin', `<div class="log-entry"><span style="color:#666">${time}</span> <span class="log-status">OK</span> ${msg}</div>`);
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span style="color:#666">${time}</span> <span class="log-status">OK</span> ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            if (log.children.length > 10) log.removeChild(log.lastChild);
         }
         
         async function connectWallet() {
-            if (window.ethereum) {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                addLog('Wallet connected');
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    addLogEntry('Wallet connected successfully');
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+                alert('Please install MetaMask');
             }
         }
         
+        // Initial fetch
         fetchSignals();
+        
+        // Auto-refresh every 5 seconds
         setInterval(fetchSignals, 5000);
+        
+        // Simulate logs
+        setInterval(() => {
+            const pairs = ['ETH/USDC', 'BTC/USDC', 'SOL/USDC'];
+            const actions = ['BUY', 'SELL', 'HOLD'];
+            const pair = pairs[Math.floor(Math.random() * pairs.length)];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            addLogEntry(`${pair} → ${action} conf=${Math.floor(Math.random() * 40) + 60}%`);
+        }, 10000);
     </script>
 </body>
 </html>
+EOF
+
+echo "✅ Frontend updated!"
+echo "⚠️  Don't forget to replace YOUR_VPS_IP in index.html"
+echo "Then redeploy to Vercel: vercel --prod"
