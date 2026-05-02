@@ -17,6 +17,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .logo-text p{font-size:12px;color:#666}
 .badge{padding:6px 12px;background:rgba(0,255,136,0.1);border:1px solid #00ff88;border-radius:4px;font-size:12px;color:#00ff88}
 .btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#00ff88 0%,#00ccff 100%);color:#000;font-weight:600}
+.btn-secondary{background:transparent;border:1px solid #ff4444;color:#ff4444}
+.btn-secondary:hover{background:#ff4444;color:#fff}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
 .stat-card{background:rgba(17,17,17,0.8);border:1px solid rgba(0,255,136,0.2);border-radius:12px;padding:24px}
 .stat-label{font-size:12px;color:#666;margin-bottom:8px;text-transform:uppercase}
@@ -42,7 +44,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 <div class="container">
 <header>
 <div class="logo"><div class="logo-icon"><img src="images/ritual.png" alt="Ritual"></div><div class="logo-text"><h1>Ritual Oracle</h1><p>on-chain ai signal bot</p></div></div>
-<div style="display:flex;gap:15px;align-items:center"><span class="badge">● testnet live</span><button class="btn" id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button></div>
+<div style="display:flex;gap:15px;align-items:center">
+<span class="badge">● testnet live</span>
+<button class="btn" id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
+<button class="btn btn-secondary" id="disconnectWalletBtn" onclick="disconnectWallet()" style="display:none">Disconnect</button>
+</div>
 </header>
 <div class="stats-grid">
 <div class="stat-card"><div class="stat-label">Signals Today</div><div class="stat-value" id="signalsToday">Loading...</div></div>
@@ -60,7 +66,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 </div>
 <script>
 function addLog(msg,type='OK'){const log=document.getElementById('logEntries');if(!log)return;const time=new Date().toLocaleTimeString();const color=type==='WRN'?'#ffa600':'#00ff88';log.insertAdjacentHTML('afterbegin',`<div class="log-entry"><span style="color:#666">${time}</span> <span style="color:${color}">${type}</span> ${msg}</div>`);if(log.children.length>8)log.removeChild(log.lastChild)}
-async function connectWallet(){const btn=document.getElementById('connectWalletBtn');if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='Connecting...';if(typeof window.ethereum==='undefined'){alert('MetaMask tidak terdeteksi!');addLog('Wallet not found','WRN');btn.disabled=false;btn.textContent='Connect Wallet';return}try{addLog('Requesting access...');const accounts=await window.ethereum.request({method:'eth_requestAccounts'});const addr=accounts[0];btn.textContent=addr.slice(0,6)+'...'+addr.slice(-4);btn.style.background='#00ff88';btn.style.color='#000';addLog('Connected: '+addr.slice(0,6),'OK')}catch(err){console.error(err);addLog('Connection rejected','WRN');btn.disabled=false;btn.textContent='Connect Wallet'}}
+async function connectWallet(){const btn=document.getElementById('connectWalletBtn');if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='Connecting...';if(typeof window.ethereum==='undefined'){alert('MetaMask tidak terdeteksi!');addLog('Wallet not found','WRN');btn.disabled=false;btn.textContent='Connect Wallet';return}try{addLog('Requesting access...');const accounts=await window.ethereum.request({method:'eth_requestAccounts'});const addr=accounts[0];document.getElementById('connectWalletBtn').style.display='none';document.getElementById('disconnectWalletBtn').style.display='block';addLog('Connected: '+addr.slice(0,6),'OK')}catch(err){console.error(err);addLog('Connection rejected','WRN');btn.disabled=false;btn.textContent='Connect Wallet'}}
+function disconnectWallet(){document.getElementById('connectWalletBtn').style.display='block';document.getElementById('disconnectWalletBtn').style.display='none';addLog('Wallet disconnected','OK')}
 async function fetchSignals(){try{const res=await fetch('/api/signals');if(!res.ok)throw new Error('Backend error');const data=await res.json();renderSignals(data.signals);updateStats(data)}catch(e){console.error(e);document.getElementById('signalsList').innerHTML='<div class="loading">Error</div>'}}
 function renderSignals(signals){document.getElementById('signalsList').innerHTML=signals.map(s=>`<div class="signal-item"><div class="signal-type ${s.action.toLowerCase()}">${s.action}</div><div class="signal-info"><div class="signal-pair">${s.pair}</div><div class="signal-meta">0x3f...a21b · #${s.blockNumber}</div></div><div class="confidence-value">${s.confidence}%</div></div>`).join('')}
 function updateStats(data){document.getElementById('accuracy').textContent=(data.accuracy||73.4)+'%';document.getElementById('latency').textContent='318ms';document.getElementById('blockNumber').textContent=data.signals?.[0]?.blockNumber||Math.floor(Math.random()*10000)+48000;const sigEl=document.getElementById('signalsToday');if(!sigEl.dataset.base)sigEl.dataset.base='156';let count=parseInt(sigEl.dataset.base);if(!window._sigTimer){window._sigTimer=setInterval(()=>{count++;sigEl.textContent=count},30000)};sigEl.textContent=count}
