@@ -89,7 +89,7 @@
         
         async function fetchSignals() {
             try {
-                const response = await fetch(`${API_URL}/signals/latest`);
+                const response = await fetch(`${API_URL}/signals`);
                 const data = await response.json();
                 renderSignals(data.signals);
                 updateStats(data);
