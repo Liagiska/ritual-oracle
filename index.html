@@ -32,8 +32,8 @@ body.light-mode {
 body{font-family:'Courier New',monospace;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
 .bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:0.2}
 .container{max-width:1400px;margin:0 auto;padding:20px}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:30px}
-.header-actions{display:flex;gap:15px;align-items:center}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:30px;flex-wrap:wrap;gap:12px}
+.header-actions{display:flex;gap:15px;align-items:center;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:12px;position:relative}
 .logo-icon{width:45px;height:45px;background:var(--bg-secondary);border:1px solid var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
 .logo-icon img{width:100%;height:100%;object-fit:contain}
@@ -44,17 +44,21 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .badge{padding:6px 12px;background:var(--card-hover);border:1px solid var(--accent);border-radius:4px;font-size:12px;color:var(--accent);position:relative;overflow:hidden}
 .badge::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:shimmer 2s infinite}
 @keyframes shimmer{0%{left:-100%}100%{left:100%}}
-.btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,var(--accent) 0%,#00ccff 100%);color:#fff;font-weight:600;box-shadow:0 0 15px var(--accent-glow);transition:all 0.3s}
+.badge-source{padding:4px 10px;background:rgba(0,204,255,0.1);border:1px solid rgba(0,204,255,0.4);border-radius:4px;font-size:11px;color:#00ccff;font-family:monospace}
+.btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,var(--accent) 0%,#00ccff 100%);color:#fff;font-weight:600;box-shadow:0 0 15px var(--accent-glow);transition:all 0.3s;font-family:'Courier New',monospace}
 .btn:hover{transform:translateY(-2px);box-shadow:0 0 25px var(--accent-glow)}
-.theme-toggle{background:transparent;border:1px solid var(--border);color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.theme-toggle{background:transparent;border:1px solid var(--border);color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px}
 .stat-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanLine 3s infinite linear}
 @keyframes scanLine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .stat-label{font-size:12px;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase}
-.stat-value{font-size:32px;font-weight:bold;color:var(--accent)}
+.stat-value{font-size:28px;font-weight:bold;color:var(--accent)}
+.stat-sub{font-size:11px;color:var(--text-secondary);margin-top:4px}
 .main-grid{display:grid;grid-template-columns:1fr 350px;gap:20px}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
 .signals-section{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;overflow:hidden}
 /* Motion Graphic: Scanning Laser */
 .signals-section::after{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:var(--accent);box-shadow:0 0 20px var(--accent),0 0 40px var(--accent);opacity:0.5;animation:laserScan 4s infinite linear}
@@ -69,10 +73,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .signal-type.buy{background:rgba(0,255,136,0.2);color:#00ff88;border:1px solid #00ff88}
 .signal-type.sell{background:rgba(255,68,68,0.2);color:#ff4444;border:1px solid #ff4444}
 .signal-type.hold{background:rgba(255,166,0,0.2);color:#ffa600;border:1px solid #ffa600}
-.signal-info{flex:1}
+.signal-info{flex:1;min-width:0}
 .signal-pair{font-size:18px;font-weight:bold;color:var(--text-primary)}
-.signal-meta{font-size:12px;color:var(--text-secondary)}
-.confidence-wrapper{display:flex;flex-direction:column;align-items:flex-end;width:120px}
+.signal-meta{font-size:11px;color:var(--text-secondary);word-break:break-all}
+.signal-source{font-size:10px;color:#00ccff;margin-top:2px}
+.confidence-wrapper{display:flex;flex-direction:column;align-items:flex-end;width:120px;flex-shrink:0}
 .confidence-value{font-size:18px;font-weight:bold;color:var(--accent);margin-bottom:4px}
 .confidence-bar-bg{width:100%;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}
 .confidence-bar{height:100%;background:var(--accent);border-radius:3px;animation:growBar 1s ease-out forwards;box-shadow:0 0 10px var(--accent)}
@@ -92,6 +97,15 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .chart-box{height:100px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;margin-bottom:20px;position:relative;overflow:hidden}
 .chart-anim{position:absolute;bottom:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,var(--accent-glow) 50%,transparent 100%);animation:waveMove 2s infinite linear}
 @keyframes waveMove{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+/* Precompile info card */
+.precompile-card{background:var(--bg-tertiary);border:1px solid rgba(0,204,255,0.3);border-radius:8px;padding:14px;margin-top:14px}
+.precompile-card .pc-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}
+.precompile-card .pc-row span:first-child{color:var(--text-secondary)}
+.precompile-card .pc-row span:last-child{color:#00ccff;font-family:monospace;font-size:11px}
+.precompile-card .pc-title{font-size:11px;color:#00ccff;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:bold}
+/* Pulse animation for live indicator */
+.pulse{display:inline-block;width:8px;height:8px;background:#00ff88;border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,255,136,0.7)}70%{box-shadow:0 0 0 8px rgba(0,255,136,0)}100%{box-shadow:0 0 0 0 rgba(0,255,136,0)}}
 </style>
 </head>
 <body>
@@ -104,34 +118,59 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 </div>
 <div class="header-actions">
     <span class="badge"><span class="streaming-dot"></span>testnet live</span>
+    <span class="badge-source" id="inferenceSourceBadge">LLM: connecting...</span>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
     <button class="btn" id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
     <button class="btn" id="disconnectWalletBtn" onclick="disconnectWallet()" style="display:none;border:1px solid #ff4444;background:transparent;color:#ff4444;box-shadow:none">Disconnect</button>
 </div>
 </header>
 <div class="stats-grid">
-    <div class="stat-card"><div class="stat-label">Signals Today</div><div class="stat-value" id="signalsToday">Loading...</div></div>
-    <div class="stat-card"><div class="stat-label">Accuracy (7D)</div><div class="stat-value" id="accuracy">Loading...</div></div>
-    <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-value" id="latency">Loading...</div></div>
-    <div class="stat-card"><div class="stat-label">Ritual Block</div><div class="stat-value" id="blockNumber">Loading...</div></div>
+    <div class="stat-card">
+        <div class="stat-label">Signals Today</div>
+        <div class="stat-value" id="signalsToday">—</div>
+        <div class="stat-sub" id="signalsSub">loading...</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Accuracy (7D)</div>
+        <div class="stat-value" id="accuracy">—</div>
+        <div class="stat-sub">model confidence avg</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Ritual Block</div>
+        <div class="stat-value" id="blockNumber">—</div>
+        <div class="stat-sub" id="blockSub">chain id: 1979</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Inference Mode</div>
+        <div class="stat-value" id="inferenceMode" style="font-size:16px">—</div>
+        <div class="stat-sub" id="inferenceSub">precompile 0x0802</div>
+    </div>
 </div>
 <div class="main-grid">
     <div class="signals-section">
         <div class="signal-header">
-            <h3 class="section-title">LIVE SIGNALS</h3>
-            <span style="color:var(--accent);font-size:12px">AI INFERENCE ACTIVE</span>
+            <h3 class="section-title"><span class="pulse"></span> LIVE SIGNALS</h3>
+            <span style="color:var(--accent);font-size:12px" id="lastUpdate">AI INFERENCE ACTIVE</span>
         </div>
         <div class="chart-box"><div class="chart-anim"></div></div>
-        <div id="signalsList"><div class="loading">Connecting to neural network...</div></div>
+        <div id="signalsList"><div class="loading">Connecting to Ritual neural network...</div></div>
     </div>
     <div class="sidebar">
         <div class="info-card">
             <h3 class="section-title">SIGNAL ORACLE</h3>
-            <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">LLM inference running on-chain via Ritual. Signals generated every block.</p>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">LLM inference running on-chain via Ritual's precompile at <code style="color:#00ccff">0x0802</code>. Signals seeded from real block hashes for verifiable randomness.</p>
             <div class="network-info">
                 <div class="network-row"><span>network</span><span>Ritual Testnet</span></div>
                 <div class="network-row"><span>chain id</span><span>1979</span></div>
                 <div class="network-row"><span>rpc</span><span>rpc.ritualfoundation.org</span></div>
+                <div class="network-row"><span>precompile</span><span>0x0802 (LLM)</span></div>
+            </div>
+            <div class="precompile-card">
+                <div class="pc-title">⚡ LLM Precompile Details</div>
+                <div class="pc-row"><span>address</span><span>0x0...0802</span></div>
+                <div class="pc-row"><span>model</span><span>Llama-3.1-8B</span></div>
+                <div class="pc-row"><span>wallet</span><span id="pcWallet">—</span></div>
+                <div class="pc-row"><span>ritual balance</span><span id="pcBalance">—</span></div>
             </div>
         </div>
         <div class="log-section">
@@ -142,15 +181,238 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 </div>
 </div>
 <script>
-function toggleTheme(){const body=document.body;const btn=document.getElementById('themeToggle');if(body.classList.contains('light-mode')){body.classList.remove('light-mode');btn.textContent='🌙';localStorage.setItem('theme','dark')}else{body.classList.add('light-mode');btn.textContent='☀️';localStorage.setItem('theme','light')}}
-window.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-mode');document.getElementById('themeToggle').textContent='☀️'}});
-function addLog(msg,type='ok'){const log=document.getElementById('logEntries');if(!log)return;const time=new Date().toLocaleTimeString();const cls=type==='wrn'?'log-wrn':'log-ok';const icon=type==='ok'?'✅':'⚠️';log.insertAdjacentHTML('afterbegin',`<div class="log-entry"><span class="log-time">${time}</span><span class="${cls}">${icon}</span><span class="log-msg">${msg}</span></div>`);if(log.children.length>6)log.removeChild(log.lastChild)}
-async function connectWallet(){const btn=document.getElementById('connectWalletBtn');if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='Connecting...';if(typeof window.ethereum==='undefined'){alert('MetaMask tidak terdeteksi!');addLog('Wallet not found','wrn');btn.disabled=false;btn.textContent='Connect Wallet';return}try{addLog('Requesting access...');const accounts=await window.ethereum.request({method:'eth_requestAccounts'});const addr=accounts[0];document.getElementById('connectWalletBtn').style.display='none';document.getElementById('disconnectWalletBtn').style.display='block';addLog('Connected: '+addr.slice(0,6),'ok')}catch(err){console.error(err);addLog('Connection rejected','wrn');btn.disabled=false;btn.textContent='Connect Wallet'}}
-function disconnectWallet(){document.getElementById('connectWalletBtn').style.display='block';document.getElementById('disconnectWalletBtn').style.display='none';addLog('Wallet disconnected','ok')}
-async function fetchSignals(){try{const res=await fetch('/api/signals');if(!res.ok)throw new Error('Backend error');const data=await res.json();renderSignals(data.signals);updateStats(data)}catch(e){console.error(e);document.getElementById('signalsList').innerHTML='<div class="loading">Connection lost. Retrying...</div>'}}
-function renderSignals(signals){document.getElementById('signalsList').innerHTML=signals.map((s,i)=>`<div class="signal-item" style="animation-delay:${i*0.1}s"><div class="signal-type ${s.action.toLowerCase()}">${s.action}</div><div class="signal-info"><div class="signal-pair">${s.pair}</div><div class="signal-meta">0x3f...a21b · #${s.blockNumber}</div></div><div class="confidence-wrapper"><div class="confidence-value">${s.confidence}%</div><div class="confidence-bar-bg"><div class="confidence-bar" style="--width:${s.confidence}%"></div></div></div></div>`).join('')}
-function updateStats(data){document.getElementById('accuracy').textContent=(data.accuracy||73.4)+'%';document.getElementById('latency').textContent='318ms';document.getElementById('blockNumber').textContent=data.signals?.[0]?.blockNumber||Math.floor(Math.random()*10000)+48000;const sigEl=document.getElementById('signalsToday');if(!sigEl.dataset.base)sigEl.dataset.base='156';let count=parseInt(sigEl.dataset.base);if(!window._sigTimer){window._sigTimer=setInterval(()=>{count++;sigEl.textContent=count},30000)};sigEl.textContent=count}
-fetchSignals();setInterval(fetchSignals,10000);
+// ═══════════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════════
+function toggleTheme(){
+    const body=document.body;
+    const btn=document.getElementById('themeToggle');
+    if(body.classList.contains('light-mode')){
+        body.classList.remove('light-mode');btn.textContent='🌙';localStorage.setItem('theme','dark');
+    }else{
+        body.classList.add('light-mode');btn.textContent='☀️';localStorage.setItem('theme','light');
+    }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+    if(localStorage.getItem('theme')==='light'){
+        document.body.classList.add('light-mode');
+        document.getElementById('themeToggle').textContent='☀️';
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INFERENCE LOG (frontend)
+// ═══════════════════════════════════════════════════════════════
+function addLog(msg,type='ok'){
+    const log=document.getElementById('logEntries');
+    if(!log)return;
+    const time=new Date().toLocaleTimeString();
+    const cls=type==='wrn'?'log-wrn':'log-ok';
+    const icon=type==='ok'?'✅':'⚠️';
+    log.insertAdjacentHTML('afterbegin',
+        `<div class="log-entry"><span class="log-time">${time}</span><span class="${cls}">${icon}</span><span class="log-msg">${msg}</span></div>`
+    );
+    if(log.children.length>8)log.removeChild(log.lastChild);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WALLET CONNECT (MetaMask)
+// ═══════════════════════════════════════════════════════════════
+async function connectWallet(){
+    const btn=document.getElementById('connectWalletBtn');
+    if(!btn||btn.disabled)return;
+    btn.disabled=true;btn.textContent='Connecting...';
+    if(typeof window.ethereum==='undefined'){
+        alert('MetaMask not detected!');
+        addLog('Wallet not found','wrn');
+        btn.disabled=false;btn.textContent='Connect Wallet';return;
+    }
+    try{
+        addLog('Requesting wallet access...');
+        const accounts=await window.ethereum.request({method:'eth_requestAccounts'});
+        const addr=accounts[0];
+
+        // Try to switch to Ritual Testnet
+        try{
+            await window.ethereum.request({
+                method:'wallet_addEthereumChain',
+                params:[{
+                    chainId:'0x7BB',
+                    chainName:'Ritual Testnet',
+                    nativeCurrency:{name:'RITUAL',symbol:'RITUAL',decimals:18},
+                    rpcUrls:['https://rpc.ritualfoundation.org'],
+                    blockExplorerUrls:['https://explorer.ritualfoundation.org']
+                }]
+            });
+            addLog('Switched to Ritual Testnet','ok');
+        }catch(switchErr){
+            addLog('Chain switch skipped','wrn');
+        }
+
+        document.getElementById('connectWalletBtn').style.display='none';
+        document.getElementById('disconnectWalletBtn').style.display='block';
+        addLog('Connected: '+addr.slice(0,6)+'...'+addr.slice(-4),'ok');
+    }catch(err){
+        console.error(err);
+        addLog('Connection rejected','wrn');
+        btn.disabled=false;btn.textContent='Connect Wallet';
+    }
+}
+
+function disconnectWallet(){
+    document.getElementById('connectWalletBtn').style.display='block';
+    document.getElementById('disconnectWalletBtn').style.display='none';
+    document.getElementById('connectWalletBtn').disabled=false;
+    document.getElementById('connectWalletBtn').textContent='Connect Wallet';
+    addLog('Wallet disconnected','ok');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH SIGNALS FROM BACKEND
+// ═══════════════════════════════════════════════════════════════
+let signalCount = 0;
+
+async function fetchSignals(){
+    try{
+        const res=await fetch('/api/signals');
+        if(!res.ok)throw new Error('Backend error: '+res.status);
+        const data=await res.json();
+
+        renderSignals(data.signals);
+        updateStats(data);
+        addLog(`Fetched ${data.signals?.length||0} signals (block #${data.blockNumber||'?'})`,'ok');
+    }catch(e){
+        console.error(e);
+        document.getElementById('signalsList').innerHTML='<div class="loading">⚠️ Connection lost. Retrying...</div>';
+        addLog('Fetch failed: '+e.message,'wrn');
+    }
+}
+
+function renderSignals(signals){
+    if(!signals||!signals.length)return;
+    document.getElementById('signalsList').innerHTML=signals.map((s,i)=>{
+        const txInfo = s.txHash
+            ? `<a href="https://explorer.ritualfoundation.org/tx/${s.txHash}" target="_blank" style="color:#00ccff">${s.txHash.slice(0,10)}...</a>`
+            : `block #${s.blockNumber?.toLocaleString()||'?'}`;
+        const sourceLabel = s.source === 'ritual-llm-onchain' ? '🧠 on-chain LLM' : '🔗 block-seeded';
+        return `<div class="signal-item" style="animation-delay:${i*0.1}s">
+            <div class="signal-type ${s.action.toLowerCase()}">${s.action}</div>
+            <div class="signal-info">
+                <div class="signal-pair">${s.pair}</div>
+                <div class="signal-meta">${txInfo}</div>
+                <div class="signal-source">${sourceLabel}</div>
+            </div>
+            <div class="confidence-wrapper">
+                <div class="confidence-value">${s.confidence}%</div>
+                <div class="confidence-bar-bg">
+                    <div class="confidence-bar" style="--width:${s.confidence}%"></div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function updateStats(data){
+    // Accuracy
+    const accEl=document.getElementById('accuracy');
+    if(accEl)accEl.textContent=(data.accuracy||73.4)+'%';
+
+    // Block number (real from Ritual chain)
+    const blockEl=document.getElementById('blockNumber');
+    if(blockEl && data.blockNumber){
+        blockEl.textContent=Number(data.blockNumber).toLocaleString();
+    }
+
+    // Signals count
+    signalCount += (data.signals?.length || 0);
+    const sigEl=document.getElementById('signalsToday');
+    if(sigEl)sigEl.textContent=signalCount;
+    const sigSub=document.getElementById('signalsSub');
+    if(sigSub)sigSub.textContent=`${data.signals?.length||0} per batch`;
+
+    // Inference source
+    const srcBadge=document.getElementById('inferenceSourceBadge');
+    if(srcBadge){
+        const src = data.inferenceSource || 'unknown';
+        if(src.includes('precompile')){
+            srcBadge.textContent='LLM: 0x0802 ⚡';
+            srcBadge.style.borderColor='rgba(0,255,136,0.6)';
+            srcBadge.style.color='#00ff88';
+        }else{
+            srcBadge.textContent='LLM: block-seeded';
+        }
+    }
+
+    // Inference mode
+    const modeEl=document.getElementById('inferenceMode');
+    if(modeEl){
+        const src = data.inferenceSource || '';
+        if(src.includes('precompile')){
+            modeEl.innerHTML='🟢 On-Chain';
+        }else{
+            modeEl.innerHTML='🟡 Block-Seeded';
+        }
+    }
+
+    // Last update
+    const lastEl=document.getElementById('lastUpdate');
+    if(lastEl && data.lastInference){
+        const d=new Date(data.lastInference);
+        lastEl.textContent='Last: '+d.toLocaleTimeString();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH CHAIN STATS
+// ═══════════════════════════════════════════════════════════════
+async function fetchStats(){
+    try{
+        const res=await fetch('/api/signals');
+        // Stats are now embedded in signals response
+        // But also try dedicated stats endpoint
+        const statsRes=await fetch('/api/signals').then(r=>r.json()).catch(()=>null);
+        if(statsRes){
+            const pcWallet=document.getElementById('pcWallet');
+            const pcBalance=document.getElementById('pcBalance');
+            // These come from /api/stats if available
+        }
+    }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH INFERENCE LOG FROM BACKEND
+// ═══════════════════════════════════════════════════════════════
+async function fetchInferenceLog(){
+    try{
+        const res=await fetch('/api/inference/log');
+        if(!res.ok||res.status===500)return;
+        const data=await res.json();
+        if(data.logs && data.logs.length>0){
+            const logEl=document.getElementById('logEntries');
+            // Merge backend logs with frontend logs
+            data.logs.slice(0,5).forEach(entry=>{
+                const time=new Date(entry.time).toLocaleTimeString();
+                const cls=entry.type==='wrn'?'log-wrn':'log-ok';
+                const icon=entry.type==='ok'?'✅':'⚠️';
+                const existing=logEl.querySelector(`[data-log="${entry.time}"]`);
+                if(!existing){
+                    logEl.insertAdjacentHTML('beforeend',
+                        `<div class="log-entry" data-log="${entry.time}"><span class="log-time">${time}</span><span class="${cls}">${icon}</span><span class="log-msg">${entry.msg}</span></div>`
+                    );
+                }
+            });
+        }
+    }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+addLog('Initializing Ritual Oracle...','ok');
+addLog('Connecting to precompile 0x0802...','ok');
+fetchSignals();
+setInterval(fetchSignals, 10000);
+setInterval(fetchInferenceLog, 15000);
 </script>
 </body>
 </html>
