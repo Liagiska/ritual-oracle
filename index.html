@@ -116,7 +116,18 @@
             document.getElementById('accuracy').textContent = data.accuracy + '%';
             document.getElementById('latency').textContent = '318ms';
             document.getElementById('blockNumber').textContent = Math.floor(Math.random() * 10000) + 48000;
-        }
+        
+	const signalsEl = document.getElementById('signalsToday');
+    if (!signalsEl.dataset.base) signalsEl.dataset.base = '156';
+    let count = parseInt(signalsEl.dataset.base);
+    if (!window._signalTimer) {
+        window._signalTimer = setInterval(() => {
+            count++;
+            signalsEl.textContent = count;
+        }, 30000);
+    }
+    signalsEl.textContent = count;
+	}
         
         function addLog(msg) {
             const log = document.getElementById('logEntries');
