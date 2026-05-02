@@ -1,0 +1,17 @@
+[0;1;32m●[0m nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (]8;;file://vans-am-4gb/usr/lib/systemd/system/nginx.service/usr/lib/systemd/system/nginx.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-05-01 07:00:17 UTC; 23h ago
+       Docs: ]8;;man:nginx(8)man:nginx(8)]8;;
+    Process: 751 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 788 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 795 (nginx)
+      Tasks: 3 (limit: 4653)
+     Memory: 2.3M (peak: 3.8M)
+        CPU: 34ms
+     CGroup: /system.slice/nginx.service
+             ├─[0;38;5;245m795 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"[0m
+             ├─[0;38;5;245m796 "nginx: worker process"[0m
+             └─[0;38;5;245m797 "nginx: worker process"[0m
+
+May 01 07:00:16 vans-am-4gb systemd[1]: Starting nginx.service - A high performance web server and a reverse proxy server...
+May 01 07:00:17 vans-am-4gb systemd[1]: Started nginx.service - A high performance web server and a reverse proxy server.
