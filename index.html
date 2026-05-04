@@ -280,8 +280,8 @@
         /* ═══ LIVE MARKET TICKER ═══ */
         .market-ticker{position:sticky;top:0;z-index:100;background:var(--bg-secondary);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-primary);padding:12px 0;margin-bottom:20px;transition:all 0.3s}
         .market-ticker-inner{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center}
-        .price-item{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px;transition:all 0.3s;min-width:180px;cursor:pointer}
-        .price-item:hover{border-color:var(--border-primary);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,255,136,0.1)}
+        .price-item{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px;transition:all 0.3s;min-width:180px}
+        .price-item:hover{border-color:var(--border-primary)}
         .price-icon{font-size:20px;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
         .price-info{flex:1;min-width:0}
         .price-symbol{font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px}
@@ -319,6 +319,23 @@
         .chart-body{flex:1;padding:24px;overflow:auto}
         #tradingChart{width:100%;height:500px;min-height:400px}
         
+        /* ═══ COIN SELECTOR (for Copy Trade tab) ═══ */
+        .coin-selector{display:flex;gap:12px;margin-bottom:20px;padding:0 20px}
+        .coin-tab{flex:1;padding:12px 20px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:var(--text-secondary)}
+        .coin-tab:hover{border-color:var(--border-primary);transform:translateY(-2px)}
+        .coin-tab.active{background:var(--accent-green);border-color:var(--accent-green);color:#000;box-shadow:0 4px 12px rgba(0,255,136,0.3)}
+        .coin-tab-icon{font-size:20px}
+        
+        /* ═══ CHART SECTION (in Copy Trade) ═══ */
+        .chart-section{background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:12px;padding:20px;margin-bottom:20px}
+        .chart-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .chart-section-title{font-size:16px;font-weight:700;color:var(--text-white);display:flex;align-items:center;gap:8px}
+        .chart-timeframe-controls{display:flex;gap:6px;flex-wrap:wrap}
+        .timeframe-btn{padding:6px 12px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:6px;color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.3s}
+        .timeframe-btn:hover{border-color:var(--border-primary);color:var(--text-white)}
+        .timeframe-btn.active{background:var(--accent-green);border-color:var(--accent-green);color:#000}
+        #copyTradeChart{width:100%;height:400px;min-height:300px}
+        
         @media(max-width:768px){
             .chart-modal{padding:0}
             .chart-container{max-width:100%;max-height:100vh;border-radius:0}
@@ -327,6 +344,11 @@
             .chart-btn{padding:6px 12px;font-size:11px}
             .chart-body{padding:16px}
             #tradingChart{height:400px;min-height:300px}
+            .coin-selector{flex-direction:column;gap:8px}
+            .coin-tab{padding:10px 16px}
+            #copyTradeChart{height:300px;min-height:250px}
+            .chart-timeframe-controls{gap:4px}
+            .timeframe-btn{padding:5px 10px;font-size:10px}
         }
     </style>
 </head>
@@ -357,7 +379,7 @@
         <!-- Live Market Ticker -->
         <div class="market-ticker">
             <div class="market-ticker-inner">
-                <div class="price-item" id="price-btc" onclick="openChart('bitcoin', 'BTC', '₿')">
+                <div class="price-item" id="price-btc">
                     <div class="price-icon">₿</div>
                     <div class="price-info">
                         <div class="price-symbol">BTC/USD</div>
@@ -366,7 +388,7 @@
                     </div>
                     <div class="price-sparkline" id="sparkline-btc"></div>
                 </div>
-                <div class="price-item" id="price-eth" onclick="openChart('ethereum', 'ETH', 'Ξ')">
+                <div class="price-item" id="price-eth">
                     <div class="price-icon">Ξ</div>
                     <div class="price-info">
                         <div class="price-symbol">ETH/USD</div>
@@ -375,7 +397,7 @@
                     </div>
                     <div class="price-sparkline" id="sparkline-eth"></div>
                 </div>
-                <div class="price-item" id="price-sol" onclick="openChart('solana', 'SOL', '◎')">
+                <div class="price-item" id="price-sol">
                     <div class="price-icon">◎</div>
                     <div class="price-info">
                         <div class="price-symbol">SOL/USD</div>
@@ -438,38 +460,50 @@
         <!-- TAB 2: COPY TRADE -->
         <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="tab-copytrade">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-label">Virtual Balance</div><div class="stat-value" id="ctBalance">$10,000</div></div>
-                <div class="stat-card"><div class="stat-label">Open Positions</div><div class="stat-value" id="ctOpenCount">0</div></div>
-                <div class="stat-card"><div class="stat-label">Total P&L</div><div class="stat-value" id="ctPnl">$0.00</div></div>
-                <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" id="ctWinRate">—</div></div>
+            <!-- Coin Selector -->
+            <div class="coin-selector">
+                <div class="coin-tab active" onclick="selectCoin('bitcoin', 'BTC', '₿')">
+                    <span class="coin-tab-icon">₿</span>
+                    <span>BTC</span>
+                </div>
+                <div class="coin-tab" onclick="selectCoin('ethereum', 'ETH', 'Ξ')">
+                    <span class="coin-tab-icon">Ξ</span>
+                    <span>ETH</span>
+                </div>
+                <div class="coin-tab" onclick="selectCoin('solana', 'SOL', '◎')">
+                    <span class="coin-tab-icon">◎</span>
+                    <span>SOL</span>
+                </div>
             </div>
 
-            <div class="main-grid">
-                <div class="signals-section">
-                    <div class="section-title">
-                        <span>COPY SIGNALS</span>
-                        <span style="font-size:11px;color:#444">click "Copy" to open a trade</span>
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="chart-section-header">
+                    <div class="chart-section-title">
+                        <span id="selectedCoinIcon">₿</span>
+                        <span id="selectedCoinSymbol">BTC/USD</span>
+                        <span style="font-size:13px;color:var(--text-secondary);font-weight:400;margin-left:8px" id="selectedCoinPrice">Loading...</span>
                     </div>
-                    <div id="copySignalsList"><div class="loading">Loading signals...</div></div>
+                    <div class="chart-timeframe-controls">
+                        <button class="timeframe-btn" onclick="changeCopyTradeTimeframe('1')">1m</button>
+                        <button class="timeframe-btn" onclick="changeCopyTradeTimeframe('5')">5m</button>
+                        <button class="timeframe-btn" onclick="changeCopyTradeTimeframe('15')">15m</button>
+                        <button class="timeframe-btn active" onclick="changeCopyTradeTimeframe('60')">1H</button>
+                        <button class="timeframe-btn" onclick="changeCopyTradeTimeframe('240')">4H</button>
+                        <button class="timeframe-btn" onclick="changeCopyTradeTimeframe('D')">1D</button>
+                    </div>
                 </div>
+                <div id="copyTradeChart"></div>
+            </div>
 
-                <div class="sidebar">
-                    <div class="info-card" style="margin-bottom:20px">
-                        <h3 style="margin-bottom:12px">How It Works</h3>
-                        <div style="font-size:12px;color:#888;line-height:1.8">
-                            <p>1. Connect your wallet to Ritual Chain</p>
-                            <p>2. Initialize portfolio (10,000 virtual USDC)</p>
-                            <p>3. Copy AI signals → opens on-chain trade</p>
-                            <p>4. Close trades to realize P&L</p>
-                            <p style="margin-top:12px;color:#666">All trades are recorded on-chain via smart contract on Ritual testnet.</p>
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <h3 style="margin-bottom:12px">Open Positions</h3>
-                        <div id="openPositions" style="font-size:12px;color:#666">No open positions</div>
-                    </div>
+            <!-- Leaderboard Section -->
+            <div class="signals-section">
+                <div class="section-title">
+                    <span>🏆 TOP TRADERS</span>
+                    <span style="font-size:11px;color:#444">best performers for <span id="leaderboardCoin">BTC</span></span>
+                </div>
+                <div id="leaderboardList">
+                    <div class="loading">Loading leaderboard...</div>
                 </div>
             </div>
         </div>
@@ -524,33 +558,6 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <!-- Chart Modal -->
-    <div class="chart-modal" id="chartModal">
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <div class="chart-title-icon" id="chartIcon">₿</div>
-                    <div class="chart-title-info">
-                        <h3 id="chartSymbol">BTC/USD</h3>
-                        <p id="chartPrice">Loading...</p>
-                    </div>
-                </div>
-                <div class="chart-close" onclick="closeChart()">✕</div>
-            </div>
-            <div class="chart-controls">
-                <button class="chart-btn" onclick="changeTimeframe('1')">1m</button>
-                <button class="chart-btn" onclick="changeTimeframe('5')">5m</button>
-                <button class="chart-btn" onclick="changeTimeframe('15')">15m</button>
-                <button class="chart-btn active" onclick="changeTimeframe('60')">1H</button>
-                <button class="chart-btn" onclick="changeTimeframe('240')">4H</button>
-                <button class="chart-btn" onclick="changeTimeframe('D')">1D</button>
-            </div>
-            <div class="chart-body">
-                <div id="tradingChart"></div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // ═══════════════════════════════════════════════════════════════
         // THEME TOGGLE
@@ -569,7 +576,7 @@
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             
             // Update chart theme if chart is open
-            updateChartTheme();
+            updateCopyTradeChartTheme();
         }
 
         // Load saved theme on page load
@@ -688,57 +695,65 @@
         setInterval(fetchMarketPrices, 30000);
 
         // ═══════════════════════════════════════════════════════════════
-        // TRADING CHART (TradingView Lightweight Charts)
+        // COPY TRADE CHART (TradingView Lightweight Charts)
         // ═══════════════════════════════════════════════════════════════
-        let chart = null;
-        let candlestickSeries = null;
-        let volumeSeries = null;
-        let currentCoin = null;
-        let currentTimeframe = '60'; // Default 1H
+        let copyTradeChart = null;
+        let copyTradeCandlestickSeries = null;
+        let copyTradeVolumeSeries = null;
+        let selectedCoin = 'bitcoin';
+        let selectedCoinSymbol = 'BTC';
+        let selectedCoinIcon = '₿';
+        let copyTradeTimeframe = '60'; // Default 1H
 
-        function openChart(coinId, symbol, icon) {
-            currentCoin = coinId;
+        function selectCoin(coinId, symbol, icon) {
+            selectedCoin = coinId;
+            selectedCoinSymbol = symbol;
+            selectedCoinIcon = icon;
             
-            // Update modal header
-            document.getElementById('chartIcon').textContent = icon;
-            document.getElementById('chartSymbol').textContent = `${symbol}/USD`;
+            // Update active tab
+            document.querySelectorAll('.coin-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.coin-tab').classList.add('active');
             
-            // Show modal
-            document.getElementById('chartModal').classList.add('active');
+            // Update header
+            document.getElementById('selectedCoinIcon').textContent = icon;
+            document.getElementById('selectedCoinSymbol').textContent = `${symbol}/USD`;
+            document.getElementById('leaderboardCoin').textContent = symbol;
             
             // Initialize chart if not exists
-            if (!chart) {
-                initChart();
+            if (!copyTradeChart) {
+                initCopyTradeChart();
             }
             
             // Load chart data
-            loadChartData(coinId, currentTimeframe);
+            loadCopyTradeChartData(coinId, copyTradeTimeframe);
+            
+            // Update price from ticker
+            updateSelectedCoinPrice(coinId);
+            
+            // Load leaderboard for this coin
+            loadLeaderboard(symbol);
         }
 
-        function closeChart() {
-            document.getElementById('chartModal').classList.remove('active');
-        }
-
-        function changeTimeframe(timeframe) {
-            currentTimeframe = timeframe;
+        function changeCopyTradeTimeframe(timeframe) {
+            copyTradeTimeframe = timeframe;
             
             // Update active button
-            document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.timeframe-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
             // Reload chart data
-            if (currentCoin) {
-                loadChartData(currentCoin, timeframe);
+            if (selectedCoin) {
+                loadCopyTradeChartData(selectedCoin, timeframe);
             }
         }
 
-        function initChart() {
-            const container = document.getElementById('tradingChart');
+        function initCopyTradeChart() {
+            const container = document.getElementById('copyTradeChart');
             const isDark = !document.body.classList.contains('light-mode');
             
-            chart = LightweightCharts.createChart(container, {
+            copyTradeChart = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
-                height: 500,
+                height: 400,
                 layout: {
                     background: { color: isDark ? '#0a0a0a' : '#ffffff' },
                     textColor: isDark ? '#e0e0e0' : '#1a1a1a',
@@ -761,7 +776,7 @@
             });
 
             // Candlestick series
-            candlestickSeries = chart.addCandlestickSeries({
+            copyTradeCandlestickSeries = copyTradeChart.addCandlestickSeries({
                 upColor: isDark ? '#00ff88' : '#00b464',
                 downColor: isDark ? '#ff4444' : '#d63031',
                 borderUpColor: isDark ? '#00ff88' : '#00b464',
@@ -771,7 +786,7 @@
             });
 
             // Volume series
-            volumeSeries = chart.addHistogramSeries({
+            copyTradeVolumeSeries = copyTradeChart.addHistogramSeries({
                 color: '#26a69a',
                 priceFormat: {
                     type: 'volume',
@@ -785,16 +800,18 @@
 
             // Responsive resize
             window.addEventListener('resize', () => {
-                chart.applyOptions({ width: container.clientWidth });
+                if (copyTradeChart) {
+                    copyTradeChart.applyOptions({ width: container.clientWidth });
+                }
             });
         }
 
-        function updateChartTheme() {
-            if (!chart) return;
+        function updateCopyTradeChartTheme() {
+            if (!copyTradeChart) return;
             
             const isDark = !document.body.classList.contains('light-mode');
             
-            chart.applyOptions({
+            copyTradeChart.applyOptions({
                 layout: {
                     background: { color: isDark ? '#0a0a0a' : '#ffffff' },
                     textColor: isDark ? '#e0e0e0' : '#1a1a1a',
@@ -812,8 +829,8 @@
             });
 
             // Update candlestick colors
-            if (candlestickSeries) {
-                candlestickSeries.applyOptions({
+            if (copyTradeCandlestickSeries) {
+                copyTradeCandlestickSeries.applyOptions({
                     upColor: isDark ? '#00ff88' : '#00b464',
                     downColor: isDark ? '#ff4444' : '#d63031',
                     borderUpColor: isDark ? '#00ff88' : '#00b464',
@@ -824,7 +841,7 @@
             }
         }
 
-        async function loadChartData(coinId, timeframe) {
+        async function loadCopyTradeChartData(coinId, timeframe) {
             try {
                 // Map timeframe to CoinGecko days parameter
                 let days = 1;
@@ -860,30 +877,59 @@
                 }));
 
                 // Update chart
-                candlestickSeries.setData(candleData);
-                volumeSeries.setData(volumeData);
+                copyTradeCandlestickSeries.setData(candleData);
+                copyTradeVolumeSeries.setData(volumeData);
 
                 // Update price in header
                 const latestPrice = data[data.length - 1][4];
-                document.getElementById('chartPrice').textContent = 
+                document.getElementById('selectedCoinPrice').textContent = 
                     `$${latestPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
                 // Fit content
-                chart.timeScale().fitContent();
+                copyTradeChart.timeScale().fitContent();
             } catch (error) {
                 console.error('Failed to load chart data:', error);
             }
         }
 
-        // Close modal on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeChart();
-        });
+        function updateSelectedCoinPrice(coinId) {
+            // Get price from ticker data
+            const priceEl = document.querySelector(`#price-${coinId === 'bitcoin' ? 'btc' : coinId === 'ethereum' ? 'eth' : 'sol'} .price-value`);
+            if (priceEl && !priceEl.classList.contains('price-loading')) {
+                document.getElementById('selectedCoinPrice').textContent = priceEl.textContent;
+            }
+        }
 
-        // Close modal on backdrop click
-        document.getElementById('chartModal').addEventListener('click', (e) => {
-            if (e.target.id === 'chartModal') closeChart();
-        });
+        function loadLeaderboard(symbol) {
+            // Mock leaderboard data
+            const mockData = [
+                { rank: 1, name: 'CryptoWhale', winRate: 87, pnl: '+$12,450', trades: 156, avatar: '🐋' },
+                { rank: 2, name: 'AITrader', winRate: 82, pnl: '+$9,230', trades: 203, avatar: '🤖' },
+                { rank: 3, name: 'MoonShot', winRate: 79, pnl: '+$7,890', trades: 142, avatar: '🚀' },
+                { rank: 4, name: 'DiamondHands', winRate: 76, pnl: '+$6,120', trades: 98, avatar: '💎' },
+                { rank: 5, name: 'BullRun', winRate: 74, pnl: '+$5,340', trades: 187, avatar: '🐂' },
+            ];
+
+            const html = mockData.map(trader => `
+                <div class="signal-card" style="display:flex;align-items:center;gap:16px;padding:16px">
+                    <div style="font-size:32px">${trader.avatar}</div>
+                    <div style="flex:1">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                            <span style="font-weight:700;color:var(--text-white)">#${trader.rank}</span>
+                            <span style="font-weight:600;color:var(--text-white)">${trader.name}</span>
+                        </div>
+                        <div style="display:flex;gap:16px;font-size:12px;color:var(--text-secondary)">
+                            <span>Win Rate: <strong style="color:var(--accent-green)">${trader.winRate}%</strong></span>
+                            <span>P&L: <strong style="color:var(--accent-green)">${trader.pnl}</strong></span>
+                            <span>Trades: <strong>${trader.trades}</strong></span>
+                        </div>
+                    </div>
+                    <button class="action-btn" style="padding:8px 20px;font-size:12px">Copy</button>
+                </div>
+            `).join('');
+
+            document.getElementById('leaderboardList').innerHTML = html;
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // PARTICLE SYSTEM
@@ -1012,7 +1058,17 @@
             const panel = document.getElementById(`tab-${tab}`);
             panel.classList.add('active');
             
-            if (tab === 'copytrade') renderCopySignals();
+            // Initialize Copy Trade chart on first open
+            if (tab === 'copytrade') {
+                if (!copyTradeChart) {
+                    setTimeout(() => {
+                        initCopyTradeChart();
+                        loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
+                        loadLeaderboard(selectedCoinSymbol);
+                    }, 100);
+                }
+                renderCopySignals();
+            }
             if (tab === 'portfolio') loadPortfolio();
         }
 
