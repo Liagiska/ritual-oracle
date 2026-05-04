@@ -567,6 +567,9 @@
             
             // Save preference
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            
+            // Update chart theme if chart is open
+            updateChartTheme();
         }
 
         // Load saved theme on page load
@@ -737,12 +740,12 @@
                 width: container.clientWidth,
                 height: 500,
                 layout: {
-                    background: { color: isDark ? '#0a0a0a' : '#f5f5f5' },
+                    background: { color: isDark ? '#0a0a0a' : '#ffffff' },
                     textColor: isDark ? '#e0e0e0' : '#1a1a1a',
                 },
                 grid: {
-                    vertLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-                    horzLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                    vertLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
+                    horzLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
                 },
                 crosshair: {
                     mode: LightweightCharts.CrosshairMode.Normal,
@@ -759,12 +762,12 @@
 
             // Candlestick series
             candlestickSeries = chart.addCandlestickSeries({
-                upColor: '#00ff88',
-                downColor: '#ff4444',
-                borderUpColor: '#00ff88',
-                borderDownColor: '#ff4444',
-                wickUpColor: '#00ff88',
-                wickDownColor: '#ff4444',
+                upColor: isDark ? '#00ff88' : '#00b464',
+                downColor: isDark ? '#ff4444' : '#d63031',
+                borderUpColor: isDark ? '#00ff88' : '#00b464',
+                borderDownColor: isDark ? '#ff4444' : '#d63031',
+                wickUpColor: isDark ? '#00ff88' : '#00b464',
+                wickDownColor: isDark ? '#ff4444' : '#d63031',
             });
 
             // Volume series
@@ -784,6 +787,41 @@
             window.addEventListener('resize', () => {
                 chart.applyOptions({ width: container.clientWidth });
             });
+        }
+
+        function updateChartTheme() {
+            if (!chart) return;
+            
+            const isDark = !document.body.classList.contains('light-mode');
+            
+            chart.applyOptions({
+                layout: {
+                    background: { color: isDark ? '#0a0a0a' : '#ffffff' },
+                    textColor: isDark ? '#e0e0e0' : '#1a1a1a',
+                },
+                grid: {
+                    vertLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
+                    horzLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
+                },
+                rightPriceScale: {
+                    borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
+                },
+                timeScale: {
+                    borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
+                },
+            });
+
+            // Update candlestick colors
+            if (candlestickSeries) {
+                candlestickSeries.applyOptions({
+                    upColor: isDark ? '#00ff88' : '#00b464',
+                    downColor: isDark ? '#ff4444' : '#d63031',
+                    borderUpColor: isDark ? '#00ff88' : '#00b464',
+                    borderDownColor: isDark ? '#ff4444' : '#d63031',
+                    wickUpColor: isDark ? '#00ff88' : '#00b464',
+                    wickDownColor: isDark ? '#ff4444' : '#d63031',
+                });
+            }
         }
 
         async function loadChartData(coinId, timeframe) {
