@@ -460,6 +460,14 @@
         <!-- TAB 2: COPY TRADE -->
         <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="tab-copytrade">
+            <!-- Stats Grid (Virtual Balance, etc) -->
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Virtual Balance</div><div class="stat-value" id="ctBalance">$10,000</div></div>
+                <div class="stat-card"><div class="stat-label">Open Positions</div><div class="stat-value" id="ctOpenCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Total P&L</div><div class="stat-value" id="ctPnl">$0.00</div></div>
+                <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" id="ctWinRate">—</div></div>
+            </div>
+
             <!-- Coin Selector -->
             <div class="coin-selector">
                 <div class="coin-tab active" onclick="selectCoin('bitcoin', 'BTC', '₿')">
@@ -496,14 +504,30 @@
                 <div id="copyTradeChart"></div>
             </div>
 
-            <!-- Leaderboard Section -->
-            <div class="signals-section">
-                <div class="section-title">
-                    <span>🏆 TOP TRADERS</span>
-                    <span style="font-size:11px;color:#444">best performers for <span id="leaderboardCoin">BTC</span></span>
+            <!-- Two Column Layout: Leaderboard + Copy Signals -->
+            <div class="main-grid">
+                <!-- Leaderboard Section (Left) -->
+                <div class="signals-section">
+                    <div class="section-title">
+                        <span>🏆 TOP TRADERS</span>
+                        <span style="font-size:11px;color:#444">best performers for <span id="leaderboardCoin">BTC</span></span>
+                    </div>
+                    <div id="leaderboardList">
+                        <div class="loading">Loading leaderboard...</div>
+                    </div>
                 </div>
-                <div id="leaderboardList">
-                    <div class="loading">Loading leaderboard...</div>
+
+                <!-- Copy Signals Section (Right) -->
+                <div class="sidebar">
+                    <div class="info-card">
+                        <div class="section-title" style="margin-bottom:16px">
+                            <span>COPY SIGNALS</span>
+                            <span style="font-size:11px;color:#444">click "Copy" to trade</span>
+                        </div>
+                        <div id="copySignalsList">
+                            <div class="loading">Loading signals...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
