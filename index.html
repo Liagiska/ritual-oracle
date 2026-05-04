@@ -1127,15 +1127,33 @@
             
             // Initialize Copy Trade chart on first open
             if (tab === 'copytrade') {
-                if (!copyTradeChart) {
+                // Always try to load chart data even if chart exists
+                if (copyTradeChart) {
+                    console.log('Chart exists, reloading data...');
+                    loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
+                    loadLeaderboard(selectedCoinSymbol);
+                } else {
                     // Increase timeout to ensure DOM is ready
                     setTimeout(() => {
                         console.log('Initializing Copy Trade chart...');
                         initCopyTradeChart();
-                        if (copyTradeChart) {
-                            loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
-                            loadLeaderboard(selectedCoinSymbol);
-                        }
+                        // Wait for chart to be ready
+                        setTimeout(() => {
+                            if (copyTradeChart) {
+                                loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
+                                loadLeaderboard(selectedCoinSymbol);
+                            } else {
+                                console.error('Chart failed to initialize, retrying...');
+                                // Retry once more
+                                setTimeout(() => {
+                                    initCopyTradeChart();
+                                    if (copyTradeChart) {
+                                        loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
+                                        loadLeaderboard(selectedCoinSymbol);
+                                    }
+                                }, 500);
+                            }
+                        }, 200);
                     }, 300);
                 }
                 renderCopySignals();
