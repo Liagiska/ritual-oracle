@@ -275,6 +275,30 @@
         .theme-toggle:hover{border-color:var(--accent-green)}
         .theme-toggle-slider{width:18px;height:18px;background:var(--accent-green);border-radius:50%;transition:transform 0.3s ease;display:flex;align-items:center;justify-content:center;font-size:10px}
         body.light-mode .theme-toggle-slider{transform:translateX(24px)}
+
+        /* ═══ LIVE MARKET TICKER ═══ */
+        .market-ticker{position:sticky;top:0;z-index:100;background:var(--bg-secondary);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-primary);padding:12px 0;margin-bottom:20px;transition:all 0.3s}
+        .market-ticker-inner{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center}
+        .price-item{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px;transition:all 0.3s;min-width:180px}
+        .price-item:hover{border-color:var(--border-primary);transform:translateY(-2px)}
+        .price-icon{font-size:20px;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
+        .price-info{flex:1;min-width:0}
+        .price-symbol{font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px}
+        .price-value{font-size:16px;font-weight:bold;color:var(--text-white);font-family:monospace}
+        .price-change{font-size:11px;font-weight:600;margin-top:2px}
+        .price-change.positive{color:var(--accent-green)}
+        .price-change.negative{color:var(--accent-red)}
+        .price-sparkline{width:60px;height:24px;margin-left:8px}
+        .price-sparkline svg{width:100%;height:100%}
+        .price-loading{color:var(--text-secondary);font-size:12px;animation:pulse 1.5s ease-in-out infinite}
+        @keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+        
+        @media(max-width:768px){
+            .market-ticker-inner{gap:12px}
+            .price-item{min-width:150px;padding:6px 12px}
+            .price-value{font-size:14px}
+            .price-sparkline{width:50px;height:20px}
+        }
     </style>
 </head>
 <body>
@@ -300,6 +324,39 @@
                 <button class="btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
             </div>
         </header>
+
+        <!-- Live Market Ticker -->
+        <div class="market-ticker">
+            <div class="market-ticker-inner">
+                <div class="price-item" id="price-btc">
+                    <div class="price-icon">₿</div>
+                    <div class="price-info">
+                        <div class="price-symbol">BTC/USD</div>
+                        <div class="price-value price-loading">Loading...</div>
+                        <div class="price-change">—</div>
+                    </div>
+                    <div class="price-sparkline" id="sparkline-btc"></div>
+                </div>
+                <div class="price-item" id="price-eth">
+                    <div class="price-icon">Ξ</div>
+                    <div class="price-info">
+                        <div class="price-symbol">ETH/USD</div>
+                        <div class="price-value price-loading">Loading...</div>
+                        <div class="price-change">—</div>
+                    </div>
+                    <div class="price-sparkline" id="sparkline-eth"></div>
+                </div>
+                <div class="price-item" id="price-sol">
+                    <div class="price-icon">◎</div>
+                    <div class="price-info">
+                        <div class="price-symbol">SOL/USD</div>
+                        <div class="price-value price-loading">Loading...</div>
+                        <div class="price-change">—</div>
+                    </div>
+                    <div class="price-sparkline" id="sparkline-sol"></div>
+                </div>
+            </div>
+        </div>
 
         <!-- Tabs -->
         <div class="tabs">
@@ -467,6 +524,109 @@
                 document.querySelector('.theme-toggle-slider').textContent = '☀️';
             }
         })();
+
+        // ═══════════════════════════════════════════════════════════════
+        // LIVE MARKET PRICES
+        // ═══════════════════════════════════════════════════════════════
+        const COINGECKO_API = 'https://api.coingecko.com/api/v3';
+        const COINS = {
+            bitcoin: { symbol: 'BTC', id: 'price-btc' },
+            ethereum: { symbol: 'ETH', id: 'price-eth' },
+            solana: { symbol: 'SOL', id: 'price-sol' }
+        };
+
+        async function fetchMarketPrices() {
+            try {
+                const ids = Object.keys(COINS).join(',');
+                const response = await fetch(
+                    `${COINGECKO_API}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`
+                );
+                const data = await response.json();
+
+                Object.entries(COINS).forEach(([coinId, coin]) => {
+                    const priceData = data[coinId];
+                    if (!priceData) return;
+
+                    const container = document.getElementById(coin.id);
+                    const priceEl = container.querySelector('.price-value');
+                    const changeEl = container.querySelector('.price-change');
+
+                    // Update price
+                    const price = priceData.usd;
+                    priceEl.textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    priceEl.classList.remove('price-loading');
+
+                    // Update 24h change
+                    const change = priceData.usd_24h_change;
+                    const changeText = change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`;
+                    changeEl.textContent = changeText;
+                    changeEl.className = `price-change ${change >= 0 ? 'positive' : 'negative'}`;
+                });
+
+                // Fetch sparkline data
+                fetchSparklines();
+            } catch (error) {
+                console.error('Failed to fetch prices:', error);
+            }
+        }
+
+        async function fetchSparklines() {
+            try {
+                const promises = Object.entries(COINS).map(async ([coinId, coin]) => {
+                    const response = await fetch(
+                        `${COINGECKO_API}/coins/${coinId}/market_chart?vs_currency=usd&days=1&interval=hourly`
+                    );
+                    const data = await response.json();
+                    return { coin, prices: data.prices };
+                });
+
+                const results = await Promise.all(promises);
+                results.forEach(({ coin, prices }) => {
+                    renderSparkline(coin.symbol.toLowerCase(), prices);
+                });
+            } catch (error) {
+                console.error('Failed to fetch sparklines:', error);
+            }
+        }
+
+        function renderSparkline(symbol, prices) {
+            const container = document.getElementById(`sparkline-${symbol}`);
+            if (!container || !prices || prices.length === 0) return;
+
+            const values = prices.map(p => p[1]);
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const range = max - min;
+
+            const width = 60;
+            const height = 24;
+            const points = values.map((val, i) => {
+                const x = (i / (values.length - 1)) * width;
+                const y = height - ((val - min) / range) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            const isPositive = values[values.length - 1] >= values[0];
+            const color = isPositive ? '#00ff88' : '#ff4444';
+
+            container.innerHTML = `
+                <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+                    <polyline
+                        points="${points}"
+                        fill="none"
+                        stroke="${color}"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        opacity="0.8"
+                    />
+                </svg>
+            `;
+        }
+
+        // Initial fetch and auto-refresh every 30s
+        fetchMarketPrices();
+        setInterval(fetchMarketPrices, 30000);
 
         // ═══════════════════════════════════════════════════════════════
         // PARTICLE SYSTEM
