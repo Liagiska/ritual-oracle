@@ -980,22 +980,26 @@
             const html = mockData.map(trader => `
                 <div class="signal-card" style="display:flex;align-items:center;gap:16px;padding:16px">
                     <div style="font-size:32px">${trader.avatar}</div>
-                    <div style="flex:1">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                    <div style="flex:1;min-width:0">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
                             <span style="font-weight:700;color:var(--text-white)">#${trader.rank}</span>
                             <span style="font-weight:600;color:var(--text-white)">${trader.name}</span>
                         </div>
-                        <div style="display:flex;gap:16px;font-size:12px;color:var(--text-secondary)">
-                            <span>Win Rate: <strong style="color:var(--accent-green)">${trader.winRate}%</strong></span>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:var(--text-secondary)">
+                            <span>Win: <strong style="color:var(--accent-green)">${trader.winRate}%</strong></span>
                             <span>P&L: <strong style="color:var(--accent-green)">${trader.pnl}</strong></span>
-                            <span>Trades: <strong>${trader.trades}</strong></span>
+                            <span style="grid-column:1/-1">Trades: <strong>${trader.trades}</strong></span>
                         </div>
                     </div>
-                    <button class="action-btn" style="padding:8px 20px;font-size:12px">Copy</button>
+                    <button class="action-btn" style="padding:8px 16px;font-size:12px;white-space:nowrap" onclick="copyTrader('${trader.name}')">Copy</button>
                 </div>
             `).join('');
 
             document.getElementById('leaderboardList').innerHTML = html;
+        }
+
+        function copyTrader(traderName) {
+            alert(`🎯 Copying trades from ${traderName}!\n\nThis feature will automatically mirror their trades.\n\n(Demo mode - full implementation coming soon)`);
         }
 
         // ═══════════════════════════════════════════════════════════════
