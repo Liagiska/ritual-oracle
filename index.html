@@ -1146,33 +1146,38 @@
             // Initialize Copy Trade chart on first open
             if (tab === 'copytrade') {
                 // Always try to load chart data even if chart exists
-                if (copyTradeChart) {
+                if (copyTradeChart && copyTradeCandlestickSeries && copyTradeVolumeSeries) {
                     console.log('Chart exists, reloading data...');
                     loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
                     loadLeaderboard(selectedCoinSymbol);
                 } else {
-                    // Increase timeout to ensure DOM is ready
-                    setTimeout(() => {
+                    console.log('Chart not ready, initializing...');
+                    // Wait for DOM and initialize
+                    setTimeout(async () => {
                         console.log('Initializing Copy Trade chart...');
                         initCopyTradeChart();
-                        // Wait for chart to be ready
-                        setTimeout(() => {
-                            if (copyTradeChart) {
+                        
+                        // Wait and verify chart is ready
+                        let retries = 0;
+                        const maxRetries = 5;
+                        
+                        const waitForChart = () => {
+                            if (copyTradeChart && copyTradeCandlestickSeries && copyTradeVolumeSeries) {
+                                console.log('✅ Chart ready! Loading data...');
                                 loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
                                 loadLeaderboard(selectedCoinSymbol);
+                            } else if (retries < maxRetries) {
+                                retries++;
+                                console.log(`⏳ Waiting for chart... (attempt ${retries}/${maxRetries})`);
+                                setTimeout(waitForChart, 300);
                             } else {
-                                console.error('Chart failed to initialize, retrying...');
-                                // Retry once more
-                                setTimeout(() => {
-                                    initCopyTradeChart();
-                                    if (copyTradeChart) {
-                                        loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
-                                        loadLeaderboard(selectedCoinSymbol);
-                                    }
-                                }, 500);
+                                console.error('❌ Chart failed to initialize after 5 attempts');
+                                document.getElementById('selectedCoinPrice').textContent = 'Chart initialization failed';
                             }
-                        }, 200);
-                    }, 300);
+                        };
+                        
+                        setTimeout(waitForChart, 200);
+                    }, 100);
                 }
                 renderCopySignals();
             }
