@@ -739,6 +739,8 @@
         let copyTradeTimeframe = '60'; // Default 1H
 
         function selectCoin(coinId, symbol, icon) {
+            console.log(`Switching to ${symbol} (${coinId})`);
+            
             selectedCoin = coinId;
             selectedCoinSymbol = symbol;
             selectedCoinIcon = icon;
@@ -751,13 +753,16 @@
             document.getElementById('selectedCoinIcon').textContent = icon;
             document.getElementById('selectedCoinSymbol').textContent = `${symbol}/USD`;
             document.getElementById('leaderboardCoin').textContent = symbol;
+            document.getElementById('selectedCoinPrice').textContent = 'Loading...';
             
             // Initialize chart if not exists
             if (!copyTradeChart) {
+                console.log('Chart not initialized, creating...');
                 initCopyTradeChart();
             }
             
-            // Load chart data
+            // Force reload chart data for new coin
+            console.log(`Loading chart data for ${coinId}...`);
             loadCopyTradeChartData(coinId, copyTradeTimeframe);
             
             // Update price from ticker
@@ -895,6 +900,8 @@
         }
 
         async function loadCopyTradeChartData(coinId, timeframe) {
+            console.log(`loadCopyTradeChartData called: coin=${coinId}, timeframe=${timeframe}`);
+            
             if (!copyTradeCandlestickSeries || !copyTradeVolumeSeries) {
                 console.error('Chart series not initialized');
                 return;
@@ -908,15 +915,17 @@
                 else if (timeframe === '240') days = 30;
                 else if (timeframe === 'D') days = 90;
 
-                const response = await fetch(
-                    `${COINGECKO_API}/coins/${coinId}/ohlc?vs_currency=usd&days=${days}`
-                );
+                const apiUrl = `${COINGECKO_API}/coins/${coinId}/ohlc?vs_currency=usd&days=${days}`;
+                console.log(`Fetching: ${apiUrl}`);
+                
+                const response = await fetch(apiUrl);
                 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log(`Received ${data.length} candles for ${coinId}`);
 
                 if (!data || data.length === 0) {
                     console.error('No chart data received');
@@ -941,6 +950,7 @@
                 }));
 
                 // Update chart
+                console.log(`Updating chart with ${candleData.length} candles`);
                 copyTradeCandlestickSeries.setData(candleData);
                 copyTradeVolumeSeries.setData(volumeData);
 
@@ -952,7 +962,7 @@
                 // Fit content
                 copyTradeChart.timeScale().fitContent();
                 
-                console.log(`Chart data loaded: ${data.length} candles`);
+                console.log(`✅ Chart updated successfully for ${coinId}`);
             } catch (error) {
                 console.error('Failed to load chart data:', error);
                 document.getElementById('selectedCoinPrice').textContent = 'Failed to load data';
