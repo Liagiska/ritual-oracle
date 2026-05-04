@@ -949,7 +949,11 @@
                     color: item[4] >= item[1] ? 'rgba(0,255,136,0.5)' : 'rgba(255,68,68,0.5)',
                 }));
 
-                // Update chart
+                // Clear existing data first
+                copyTradeCandlestickSeries.setData([]);
+                copyTradeVolumeSeries.setData([]);
+                
+                // Update chart with new data
                 console.log(`Updating chart with ${candleData.length} candles`);
                 copyTradeCandlestickSeries.setData(candleData);
                 copyTradeVolumeSeries.setData(volumeData);
