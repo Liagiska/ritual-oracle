@@ -782,61 +782,81 @@
 
         function initCopyTradeChart() {
             const container = document.getElementById('copyTradeChart');
+            if (!container) {
+                console.error('Chart container not found');
+                return;
+            }
+
+            if (!window.LightweightCharts) {
+                console.error('LightweightCharts library not loaded');
+                document.getElementById('selectedCoinPrice').textContent = 'Chart library loading...';
+                // Retry after 1 second
+                setTimeout(initCopyTradeChart, 1000);
+                return;
+            }
+
             const isDark = !document.body.classList.contains('light-mode');
             
-            copyTradeChart = LightweightCharts.createChart(container, {
-                width: container.clientWidth,
-                height: 400,
-                layout: {
-                    background: { color: isDark ? '#0a0a0a' : '#ffffff' },
-                    textColor: isDark ? '#e0e0e0' : '#1a1a1a',
-                },
-                grid: {
-                    vertLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
-                    horzLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
-                },
-                crosshair: {
-                    mode: LightweightCharts.CrosshairMode.Normal,
-                },
-                rightPriceScale: {
-                    borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
-                },
-                timeScale: {
-                    borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
-                    timeVisible: true,
-                    secondsVisible: false,
-                },
-            });
+            try {
+                copyTradeChart = LightweightCharts.createChart(container, {
+                    width: container.clientWidth,
+                    height: 400,
+                    layout: {
+                        background: { color: isDark ? '#0a0a0a' : '#ffffff' },
+                        textColor: isDark ? '#e0e0e0' : '#1a1a1a',
+                    },
+                    grid: {
+                        vertLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
+                        horzLines: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)' },
+                    },
+                    crosshair: {
+                        mode: LightweightCharts.CrosshairMode.Normal,
+                    },
+                    rightPriceScale: {
+                        borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
+                    },
+                    timeScale: {
+                        borderColor: isDark ? 'rgba(0,255,136,0.2)' : 'rgba(0,180,100,0.3)',
+                        timeVisible: true,
+                        secondsVisible: false,
+                    },
+                });
 
-            // Candlestick series
-            copyTradeCandlestickSeries = copyTradeChart.addCandlestickSeries({
-                upColor: isDark ? '#00ff88' : '#00b464',
-                downColor: isDark ? '#ff4444' : '#d63031',
-                borderUpColor: isDark ? '#00ff88' : '#00b464',
-                borderDownColor: isDark ? '#ff4444' : '#d63031',
-                wickUpColor: isDark ? '#00ff88' : '#00b464',
-                wickDownColor: isDark ? '#ff4444' : '#d63031',
-            });
+                // Candlestick series
+                copyTradeCandlestickSeries = copyTradeChart.addCandlestickSeries({
+                    upColor: isDark ? '#00ff88' : '#00b464',
+                    downColor: isDark ? '#ff4444' : '#d63031',
+                    borderUpColor: isDark ? '#00ff88' : '#00b464',
+                    borderDownColor: isDark ? '#ff4444' : '#d63031',
+                    wickUpColor: isDark ? '#00ff88' : '#00b464',
+                    wickDownColor: isDark ? '#ff4444' : '#d63031',
+                });
 
-            // Volume series
-            copyTradeVolumeSeries = copyTradeChart.addHistogramSeries({
-                color: '#26a69a',
-                priceFormat: {
-                    type: 'volume',
-                },
-                priceScaleId: '',
-                scaleMargins: {
-                    top: 0.8,
-                    bottom: 0,
-                },
-            });
+                // Volume series
+                copyTradeVolumeSeries = copyTradeChart.addHistogramSeries({
+                    color: '#26a69a',
+                    priceFormat: {
+                        type: 'volume',
+                    },
+                    priceScaleId: '',
+                    scaleMargins: {
+                        top: 0.8,
+                        bottom: 0,
+                    },
+                });
 
-            // Responsive resize
-            window.addEventListener('resize', () => {
-                if (copyTradeChart) {
-                    copyTradeChart.applyOptions({ width: container.clientWidth });
-                }
-            });
+                // Responsive resize
+                window.addEventListener('resize', () => {
+                    if (copyTradeChart) {
+                        copyTradeChart.applyOptions({ width: container.clientWidth });
+                    }
+                });
+
+                console.log('Chart initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize chart:', error);
+                document.getElementById('selectedCoinPrice').textContent = 'Chart initialization failed';
+            }
         }
 
         function updateCopyTradeChartTheme() {
@@ -875,6 +895,11 @@
         }
 
         async function loadCopyTradeChartData(coinId, timeframe) {
+            if (!copyTradeCandlestickSeries || !copyTradeVolumeSeries) {
+                console.error('Chart series not initialized');
+                return;
+            }
+
             try {
                 // Map timeframe to CoinGecko days parameter
                 let days = 1;
@@ -886,10 +911,16 @@
                 const response = await fetch(
                     `${COINGECKO_API}/coins/${coinId}/ohlc?vs_currency=usd&days=${days}`
                 );
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
                 const data = await response.json();
 
                 if (!data || data.length === 0) {
                     console.error('No chart data received');
+                    document.getElementById('selectedCoinPrice').textContent = 'No data available';
                     return;
                 }
 
@@ -920,8 +951,11 @@
 
                 // Fit content
                 copyTradeChart.timeScale().fitContent();
+                
+                console.log(`Chart data loaded: ${data.length} candles`);
             } catch (error) {
                 console.error('Failed to load chart data:', error);
+                document.getElementById('selectedCoinPrice').textContent = 'Failed to load data';
             }
         }
 
@@ -1094,11 +1128,15 @@
             // Initialize Copy Trade chart on first open
             if (tab === 'copytrade') {
                 if (!copyTradeChart) {
+                    // Increase timeout to ensure DOM is ready
                     setTimeout(() => {
+                        console.log('Initializing Copy Trade chart...');
                         initCopyTradeChart();
-                        loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
-                        loadLeaderboard(selectedCoinSymbol);
-                    }, 100);
+                        if (copyTradeChart) {
+                            loadCopyTradeChartData(selectedCoin, copyTradeTimeframe);
+                            loadLeaderboard(selectedCoinSymbol);
+                        }
+                    }, 300);
                 }
                 renderCopySignals();
             }
