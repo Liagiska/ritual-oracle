@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "abi.json",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "images/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/abi.json",
+      "dest": "/abi.json"
+    },
+    {
+      "src": "/api/feedback",
+      "dest": "/api/feedback.js"
+    },
+    {
+      "src": "/api/news",
+      "dest": "/api/news.js"
+    },
+    {
+      "src": "/api/stats",
+      "dest": "/api/stats.js"
+    },
+    {
+      "src": "/api/stats-dashboard",
+      "dest": "/api/stats-dashboard.js"
+    },
+    {
+      "src": "/api/signals/latest",
+      "dest": "/api/signals-latest.js"
+    },
+    {
+      "src": "/api/signals/summary",
+      "dest": "/api/signals-summary.js"
+    },
+    {
+      "src": "/api/signals/history",
+      "dest": "/api/signals-history.js"
+    },
+    {
+      "src": "/api/inference/log",
+      "dest": "/api/inference-log.js"
+    },
+    {
+      "src": "/api/copytrade/config",
+      "dest": "/api/copytrade-config.js"
+    },
+    {
+      "src": "/api/copytrade/portfolio/(.*)",
+      "dest": "/api/copytrade-portfolio.js"
+    },
+    {
+      "src": "/api/copytrade/trades/(.*)",
+      "dest": "/api/copytrade-trades.js"
+    },
+    {
+      "src": "/api/(?!feedback|news|copytrade|stats|signals)(.*)",
+      "dest": "/api/proxy.js"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
