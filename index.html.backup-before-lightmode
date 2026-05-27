@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ritual Oracle — On-Chain AI Signal Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Courier New',monospace;background:#0a0a0a;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
+
+        /* ═══ PARTICLE CANVAS ═══ */
+        #particleCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+        /* ═══ GRADIENT MESH OVERLAY ═══ */
+        .gradient-mesh{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.15;
+            background:radial-gradient(ellipse at 20% 50%,rgba(0,255,136,0.3) 0%,transparent 50%),
+                        radial-gradient(ellipse at 80% 20%,rgba(0,204,255,0.2) 0%,transparent 50%),
+                        radial-gradient(ellipse at 50% 80%,rgba(0,255,136,0.15) 0%,transparent 50%);
+            animation:meshDrift 20s ease-in-out infinite alternate}
+        @keyframes meshDrift{
+            0%{background-position:0% 0%,100% 0%,50% 100%}
+            50%{background-position:30% 20%,70% 40%,20% 60%}
+            100%{background-position:10% 40%,90% 10%,60% 90%}
+        }
+
+        .container{max-width:1400px;margin:0 auto;padding:20px;position:relative;z-index:1}
+
+        /* ═══ HEADER ═══ */
+        header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid rgba(0,255,136,0.2);margin-bottom:30px;flex-wrap:wrap;gap:12px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:45px;height:45px;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;
+            animation:logoGlow 3s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(0,255,136,0.4))}
+        @keyframes logoGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(0,255,136,0.4))}50%{filter:drop-shadow(0 0 20px rgba(0,255,136,0.8))}}
+        .logo-icon img{width:100%;height:100%;object-fit:contain}
+        .logo-text h1{font-size:24px;color:#fff;background:linear-gradient(135deg,#fff 0%,#00ff88 50%,#00ccff 100%);background-size:200% 200%;
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:titleShimmer 4s ease-in-out infinite}
+        @keyframes titleShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        .logo-text p{font-size:12px;color:#666}
+
+        /* ═══ BADGE ═══ */
+        .badge{padding:6px 12px;background:rgba(0,255,136,0.1);border:1px solid #00ff88;border-radius:4px;font-size:12px;color:#00ff88;position:relative;overflow:hidden}
+        .badge::before{content:'●';margin-right:6px;animation:dotBreathe 2s ease-in-out infinite;display:inline-block}
+        @keyframes dotBreathe{0%,100%{opacity:1;text-shadow:0 0 4px #00ff88}50%{opacity:0.4;text-shadow:0 0 12px #00ff88}}
+
+        /* ═══ BUTTONS ═══ */
+        .btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#00ff88 0%,#00ccff 100%);color:#000;font-weight:600;font-size:13px;transition:all 0.3s;position:relative;overflow:hidden}
+        .btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,0.3) 50%,transparent 70%);
+            animation:btnShimmer 3s ease-in-out infinite}
+        @keyframes btnShimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(0,255,136,0.4)}
+        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+        .btn:disabled::after{display:none}
+        .btn-sm{padding:6px 14px;font-size:11px;border-radius:4px}
+        .btn-outline{background:transparent;border:1px solid #00ff88;color:#00ff88}
+        .btn-outline::after{background:linear-gradient(45deg,transparent 30%,rgba(0,255,136,0.15) 50%,transparent 70%)}
+        .btn-outline:hover{background:rgba(0,255,136,0.1)}
+        .btn-danger{background:linear-gradient(135deg,#ff4444 0%,#ff6b6b 100%)}
+        .btn-danger:hover{box-shadow:0 6px 25px rgba(255,68,68,0.4)}
+
+        /* ═══ TABS ═══ */
+        .tabs{display:flex;gap:0;margin-bottom:30px;border-bottom:1px solid rgba(0,255,136,0.2)}
+        .tab{padding:12px 24px;cursor:pointer;color:#666;font-size:14px;border-bottom:2px solid transparent;transition:all 0.3s;position:relative}
+        .tab:hover{color:#aaa}
+        .tab.active{color:#00ff88;border-bottom-color:#00ff88}
+        .tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:#00ff88;box-shadow:0 0 10px #00ff88,0 0 20px rgba(0,255,136,0.3)}
+        .tab-content{display:none;opacity:0;transform:translateY(10px)}
+        .tab-content.active{display:block;animation:tabFadeIn 0.4s ease-out forwards}
+        @keyframes tabFadeIn{to{opacity:1;transform:translateY(0)}}
+
+        /* ═══ GLASSMORPHISM CARDS ═══ */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:30px}
+        .stat-card{background:rgba(17,17,17,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+            border:1px solid rgba(0,255,136,0.15);border-radius:12px;padding:20px;position:relative;overflow:hidden;
+            transition:all 0.4s cubic-bezier(0.4,0,0.2,1)}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+            background:linear-gradient(90deg,transparent,#00ff88,#00ccff,transparent);background-size:200% 100%;
+            animation:borderGlow 3s linear infinite}
+        @keyframes borderGlow{0%{background-position:200% 0}100%{background-position:-200% 0}}
+        .stat-card:hover{transform:translateY(-4px);border-color:rgba(0,255,136,0.35);box-shadow:0 8px 32px rgba(0,255,136,0.1)}
+        .stat-label{font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+        .stat-value{font-size:28px;font-weight:bold;color:#00ff88;transition:text-shadow 0.3s}
+        .stat-value.tick{text-shadow:0 0 15px rgba(0,204,255,0.8)}
+        .stat-value.negative{color:#ff4444}
+        .stat-value.neutral{color:#ffa600}
+
+        /* ═══ MAIN GRID ═══ */
+        .main-grid{display:grid;grid-template-columns:1fr 350px;gap:20px}
+        @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+        .signals-section,.info-card,.log-section,.portfolio-section{
+            background:rgba(17,17,17,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+            border:1px solid rgba(0,255,136,0.15);border-radius:12px;padding:24px;transition:border-color 0.3s}
+        .signals-section:hover,.info-card:hover,.log-section:hover{border-color:rgba(0,255,136,0.25)}
+        .section-title{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+
+        /* ═══ SIGNAL ITEMS ═══ */
+        .signal-item{display:flex;align-items:center;padding:16px;background:rgba(10,10,10,0.6);border:1px solid rgba(0,255,136,0.1);border-radius:8px;margin-bottom:12px;
+            transition:all 0.3s cubic-bezier(0.4,0,0.2,1);opacity:0;transform:translateX(-20px);animation:signalSlideIn 0.5s ease-out forwards}
+        .signal-item:nth-child(1){animation-delay:0s}
+        .signal-item:nth-child(2){animation-delay:0.08s}
+        .signal-item:nth-child(3){animation-delay:0.16s}
+        .signal-item:nth-child(4){animation-delay:0.24s}
+        .signal-item:nth-child(5){animation-delay:0.32s}
+        .signal-item:nth-child(6){animation-delay:0.40s}
+        @keyframes signalSlideIn{to{opacity:1;transform:translateX(0)}}
+        .signal-item:hover{border-color:rgba(0,255,136,0.35);transform:translateX(4px);box-shadow:0 4px 20px rgba(0,255,136,0.08)}
+
+        .signal-type{width:60px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;margin-right:16px;flex-shrink:0;transition:box-shadow 0.3s}
+        .signal-type.buy{background:rgba(0,255,136,0.2);color:#00ff88;border:1px solid #00ff88;animation:glowBuy 2.5s ease-in-out infinite}
+        .signal-type.sell{background:rgba(255,68,68,0.2);color:#ff4444;border:1px solid #ff4444;animation:glowSell 2.5s ease-in-out infinite}
+        .signal-type.hold{background:rgba(255,166,0,0.2);color:#ffa600;border:1px solid #ffa600;animation:glowHold 2.5s ease-in-out infinite}
+        @keyframes glowBuy{0%,100%{box-shadow:0 0 4px rgba(0,255,136,0.2)}50%{box-shadow:0 0 14px rgba(0,255,136,0.5)}}
+        @keyframes glowSell{0%,100%{box-shadow:0 0 4px rgba(255,68,68,0.2)}50%{box-shadow:0 0 14px rgba(255,68,68,0.5)}}
+        @keyframes glowHold{0%,100%{box-shadow:0 0 4px rgba(255,166,0,0.2)}50%{box-shadow:0 0 14px rgba(255,166,0,0.5)}}
+
+        .signal-info{flex:1;min-width:0}
+        .signal-pair{font-size:16px;font-weight:bold;color:#fff}
+        .signal-meta{font-size:11px;color:#666;margin-top:2px}
+        .signal-actions{display:flex;align-items:center;gap:10px}
+
+        /* ═══ CONFIDENCE BAR ═══ */
+        .confidence-wrap{display:flex;align-items:center;gap:10px}
+        .confidence-value{font-size:18px;font-weight:bold;color:#00ff88}
+        .confidence-bar{width:60px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;position:relative}
+        .confidence-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#00ff88,#00ccff);transition:width 1s cubic-bezier(0.4,0,0.2,1);position:relative}
+        .confidence-fill::after{content:'';position:absolute;top:0;right:0;width:20px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6));
+            animation:confShine 2s ease-in-out infinite}
+        @keyframes confShine{0%,100%{opacity:0}50%{opacity:1}}
+
+        /* ═══ PORTFOLIO ═══ */
+        .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+        .portfolio-card{background:rgba(10,10,10,0.6);backdrop-filter:blur(8px);border:1px solid rgba(0,255,136,0.1);border-radius:8px;padding:16px;text-align:center;transition:all 0.3s}
+        .portfolio-card:hover{border-color:rgba(0,255,136,0.3);transform:translateY(-2px)}
+        .portfolio-card .value{font-size:24px;font-weight:bold;color:#00ff88;margin-top:6px}
+        .portfolio-card .label{font-size:11px;color:#666;text-transform:uppercase}
+
+        /* ═══ TRADE HISTORY ═══ */
+        .trade-list{max-height:400px;overflow-y:auto}
+        .trade-item{display:flex;align-items:center;padding:12px;background:rgba(10,10,10,0.4);border:1px solid rgba(0,255,136,0.05);border-radius:6px;margin-bottom:8px;font-size:13px;transition:all 0.2s}
+        .trade-item:hover{border-color:rgba(0,255,136,0.2)}
+        .trade-item .pair{font-weight:bold;color:#fff;width:90px}
+        .trade-item .action{width:50px;font-weight:bold}
+        .trade-item .action.buy{color:#00ff88}
+        .trade-item .action.sell{color:#ff4444}
+        .trade-item .amount{color:#aaa;width:80px}
+        .trade-item .pnl{font-weight:bold;margin-left:auto}
+        .trade-item .pnl.positive{color:#00ff88}
+        .trade-item .pnl.negative{color:#ff4444}
+        .trade-item .status{font-size:11px;padding:3px 8px;border-radius:3px;margin-left:8px}
+        .trade-item .status.open{background:rgba(0,255,136,0.1);color:#00ff88}
+        .trade-item .status.closed{background:rgba(100,100,100,0.2);color:#888}
+
+        /* ═══ MODAL ═══ */
+        .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center}
+        .modal-overlay.active{display:flex}
+        .modal{background:rgba(17,17,17,0.95);border:1px solid rgba(0,255,136,0.3);border-radius:16px;padding:32px;max-width:420px;width:90%;
+            animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(0,255,136,0.1)}
+        @keyframes modalPop{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .modal h3{color:#fff;margin-bottom:20px;font-size:18px}
+        .modal-field{margin-bottom:16px}
+        .modal-field label{display:block;font-size:12px;color:#666;margin-bottom:6px;text-transform:uppercase}
+        .modal-field input{width:100%;padding:12px;background:rgba(10,10,10,0.8);border:1px solid rgba(0,255,136,0.2);border-radius:6px;color:#fff;font-family:monospace;font-size:14px;transition:border-color 0.3s,box-shadow 0.3s}
+        .modal-field input:focus{outline:none;border-color:#00ff88;box-shadow:0 0 15px rgba(0,255,136,0.15)}
+        .modal-info{font-size:12px;color:#666;margin-bottom:20px;padding:12px;background:rgba(0,255,136,0.05);border-radius:6px}
+        .modal-buttons{display:flex;gap:12px}
+        .modal-buttons .btn{flex:1}
+
+        /* ═══ NETWORK INFO ═══ */
+        .network-value{color:#00ff88;font-family:monospace}
+
+        /* ═══ INFERENCE LOG + CRT SCANLINES ═══ */
+        .log-section{position:relative;overflow:hidden}
+        .log-section::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+            background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.015) 2px,rgba(0,255,136,0.015) 4px);
+            animation:scanlineScroll 8s linear infinite;pointer-events:none;z-index:1}
+        @keyframes scanlineScroll{from{background-position:0 0}to{background-position:0 100px}}
+        .log-entry{font-family:monospace;font-size:12px;padding:8px 0;border-bottom:1px solid rgba(0,255,136,0.08);
+            opacity:0;animation:logFadeIn 0.4s ease-out forwards;position:relative}
+        .log-entry.new-entry{animation:logFadeIn 0.4s ease-out forwards,logFlash 1s ease-out forwards}
+        @keyframes logFadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes logFlash{0%{background:rgba(0,255,136,0.15)}100%{background:transparent}}
+        .log-status{color:#00ff88}
+        .log-status.wrn{color:#ffa600}
+        .loading{text-align:center;padding:40px;color:#666}
+
+        /* ═══ WALLET STATUS ═══ */
+        .wallet-status{display:flex;align-items:center;gap:8px;font-size:12px;color:#666}
+        .wallet-status .dot{width:8px;height:8px;border-radius:50%;background:#ff4444;transition:all 0.3s}
+        .wallet-status .dot.connected{background:#00ff88;box-shadow:0 0 8px rgba(0,255,136,0.6);animation:dotBreathe 2s ease-in-out infinite}
+        .wallet-addr{color:#00ff88;font-family:monospace}
+
+        /* ═══ TOAST ═══ */
+        .toast{position:fixed;bottom:20px;right:20px;padding:14px 20px;background:rgba(17,17,17,0.95);backdrop-filter:blur(12px);
+            border:1px solid rgba(0,255,136,0.3);border-radius:8px;color:#fff;font-size:13px;z-index:2000;
+            transform:translateY(100px);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+        .toast.show{transform:translateY(0);opacity:1}
+        .toast.error{border-color:rgba(255,68,68,0.5)}
+
+        /* ═══ SCROLLBAR ═══ */
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(0,255,136,0.3);border-radius:3px}
+
+        /* ═══ AUTO-REFRESH INDICATOR ═══ */
+        .refresh-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00ff88;margin-right:6px;animation:refreshPulse 5s ease-in-out infinite}
+        @keyframes refreshPulse{0%,90%,100%{opacity:0.3;transform:scale(1)}95%{opacity:1;transform:scale(1.5)}}
+
+        /* ═══ PAGE LOAD ANIMATION ═══ */
+        .container{animation:pageLoad 0.6s ease-out}
+        @keyframes pageLoad{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <canvas id="particleCanvas"></canvas>
+    <div class="gradient-mesh"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"><img src="images/ritual.png" alt="Ritual"></div>
+                <div class="logo-text"><h1>Ritual Oracle</h1><p>on-chain ai signal bot + copy trade</p></div>
+            </div>
+            <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap">
+                <span class="badge">testnet live</span>
+                <div class="wallet-status" id="walletStatus">
+                    <span class="dot"></span>
+                    <span>not connected</span>
+                </div>
+                <button class="btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('signals')">📡 Signals</div>
+            <div class="tab" onclick="switchTab('copytrade')">📈 Copy Trade</div>
+            <div class="tab" onclick="switchTab('portfolio')">💼 Portfolio</div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- TAB 1: SIGNALS -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="tab-content active" id="tab-signals">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Signals Today</div><div class="stat-value" id="signalsToday">—</div></div>
+                <div class="stat-card"><div class="stat-label">Accuracy (7D)</div><div class="stat-value" id="accuracy">—</div></div>
+                <div class="stat-card"><div class="stat-label">Inference Mode</div><div class="stat-value" id="inferenceMode" style="font-size:14px">—</div></div>
+                <div class="stat-card"><div class="stat-label">Ritual Block</div><div class="stat-value" id="blockNumber">—</div></div>
+            </div>
+
+            <div class="main-grid">
+                <div class="signals-section">
+                    <div class="section-title">
+                        <span>LIVE SIGNALS</span>
+                        <span style="font-size:11px;color:#444"><span class="refresh-dot"></span>auto-refresh 5s</span>
+                    </div>
+                    <div id="signalsList"><div class="loading">Connecting to backend...</div></div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="info-card" style="margin-bottom:20px">
+                        <h3 style="margin-bottom:12px">Signal Oracle</h3>
+                        <p style="font-size:13px;color:#666;margin-bottom:20px">LLM inference running on-chain via Ritual's precompile (0x0802)</p>
+                        <div style="background:rgba(10,10,10,0.6);border:1px solid rgba(0,255,136,0.1);border-radius:8px;padding:16px;margin-bottom:16px">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#666">network</span><span class="network-value">Ritual Chain</span></div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#666">chain id</span><span class="network-value">1979</span></div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#666">precompile</span><span class="network-value">0x0802</span></div>
+                            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#666">model</span><span class="network-value">GLM-4.7-FP8</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="log-section">
+                        <div class="section-title"><span>INFERENCE LOG</span></div>
+                        <div id="logEntries"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- TAB 2: COPY TRADE -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="tab-content" id="tab-copytrade">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Virtual Balance</div><div class="stat-value" id="ctBalance">$10,000</div></div>
+                <div class="stat-card"><div class="stat-label">Open Positions</div><div class="stat-value" id="ctOpenCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Total P&L</div><div class="stat-value" id="ctPnl">$0.00</div></div>
+                <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" id="ctWinRate">—</div></div>
+            </div>
+
+            <div class="main-grid">
+                <div class="signals-section">
+                    <div class="section-title">
+                        <span>COPY SIGNALS</span>
+                        <span style="font-size:11px;color:#444">click "Copy" to open a trade</span>
+                    </div>
+                    <div id="copySignalsList"><div class="loading">Loading signals...</div></div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="info-card" style="margin-bottom:20px">
+                        <h3 style="margin-bottom:12px">How It Works</h3>
+                        <div style="font-size:12px;color:#888;line-height:1.8">
+                            <p>1. Connect your wallet to Ritual Chain</p>
+                            <p>2. Initialize portfolio (10,000 virtual USDC)</p>
+                            <p>3. Copy AI signals → opens on-chain trade</p>
+                            <p>4. Close trades to realize P&L</p>
+                            <p style="margin-top:12px;color:#666">All trades are recorded on-chain via smart contract on Ritual testnet.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3 style="margin-bottom:12px">Open Positions</h3>
+                        <div id="openPositions" style="font-size:12px;color:#666">No open positions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- TAB 3: PORTFOLIO -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="tab-content" id="tab-portfolio">
+            <div class="portfolio-grid">
+                <div class="portfolio-card"><div class="label">Balance</div><div class="value" id="pBalance">$10,000</div></div>
+                <div class="portfolio-card"><div class="label">Total Trades</div><div class="value" id="pTotalTrades">0</div></div>
+                <div class="portfolio-card"><div class="label">Wins</div><div class="value" id="pWins">0</div></div>
+                <div class="portfolio-card"><div class="label">Losses</div><div class="value" id="pLosses">0</div></div>
+                <div class="portfolio-card"><div class="label">Total P&L</div><div class="value" id="pPnl">$0.00</div></div>
+                <div class="portfolio-card"><div class="label">Win Rate</div><div class="value" id="pWinRate">—</div></div>
+            </div>
+
+            <div class="signals-section">
+                <div class="section-title">
+                    <span>TRADE HISTORY</span>
+                    <span style="font-size:11px;color:#444">on-chain records</span>
+                </div>
+                <div class="trade-list" id="tradeHistory">
+                    <div class="loading">Connect wallet to view trade history</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Trade Modal -->
+    <div class="modal-overlay" id="tradeModal">
+        <div class="modal">
+            <h3 id="modalTitle">Copy Trade: ETH/USDC</h3>
+            <div class="modal-info" id="modalInfo">
+                Signal: <strong>BUY</strong> | Confidence: <strong>85%</strong>
+            </div>
+            <div class="modal-field">
+                <label>Trade Amount (virtual USDC)</label>
+                <input type="number" id="tradeAmount" value="500" min="100" max="5000" step="100">
+            </div>
+            <div class="modal-field">
+                <label>Available Balance</label>
+                <input type="text" id="modalBalance" value="$10,000" disabled>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn" id="confirmTradeBtn" onclick="confirmTrade()">Confirm Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // PARTICLE SYSTEM
+        // ═══════════════════════════════════════════════════════════════
+        (function initParticles() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const PARTICLE_COUNT = 50;
+            const MAX_DIST = 120;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    r: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.4 + 0.1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0,255,136,${p.alpha})`;
+                    ctx.fill();
+                });
+
+                // Draw connections
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < MAX_DIST) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(0,255,136,${0.08 * (1 - dist / MAX_DIST)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // ═══════════════════════════════════════════════════════════════
+        // ANIMATED COUNTER
+        // ═══════════════════════════════════════════════════════════════
+        function animateCount(el, target, prefix = '', suffix = '', duration = 600) {
+            const start = parseFloat(el.textContent.replace(/[^0-9.-]/g, '')) || 0;
+            if (isNaN(target) || start === target) return;
+            const startTime = performance.now();
+            el.classList.add('tick');
+            function step(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+                const current = start + (target - start) * ease;
+                if (Number.isInteger(target)) {
+                    el.textContent = prefix + Math.round(current).toLocaleString() + suffix;
+                } else {
+                    el.textContent = prefix + current.toFixed(1) + suffix;
+                }
+                if (progress < 1) requestAnimationFrame(step);
+                else el.classList.remove('tick');
+            }
+            requestAnimationFrame(step);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CONFIG
+        // ═══════════════════════════════════════════════════════════════
+        const API_URL = '/api';
+        const RITUAL_CHAIN_ID = 1979;
+        const RITUAL_RPC = 'https://rpc.ritualfoundation.org';
+
+        let provider = null;
+        let signer = null;
+        let userAddress = null;
+        let copyTradeContract = null;
+        let contractConfig = null;
+        let currentSignals = [];
+        let pendingTrade = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // TAB SWITCHING
+        // ═══════════════════════════════════════════════════════════════
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            const panel = document.getElementById(`tab-${tab}`);
+            panel.classList.add('active');
+            
+            if (tab === 'copytrade') renderCopySignals();
+            if (tab === 'portfolio') loadPortfolio();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // WALLET CONNECTION
+        // ═══════════════════════════════════════════════════════════════
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                showToast('Please install MetaMask', true);
+                return;
+            }
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x' + RITUAL_CHAIN_ID.toString(16) }]
+                    });
+                } catch (switchErr) {
+                    if (switchErr.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x' + RITUAL_CHAIN_ID.toString(16),
+                                chainName: 'Ritual Chain',
+                                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                rpcUrls: [RITUAL_RPC],
+                                blockExplorerUrls: ['https://explorer.ritual.net']
+                            }]
+                        });
+                    }
+                }
+
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+
+                const short = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('walletStatus').innerHTML = `<span class="dot connected"></span><span class="wallet-addr">${short}</span>`;
+                document.getElementById('connectBtn').textContent = short;
+
+                await loadContractConfig();
+                showToast('Wallet connected to Ritual Chain');
+                addLogEntry('Wallet connected: ' + short);
+
+                loadPortfolio();
+                loadOpenPositions();
+            } catch (err) {
+                showToast('Connection failed: ' + err.message, true);
+            }
+        }
+
+        async function loadContractConfig() {
+            try {
+                const res = await fetch(`${API_URL}/copytrade/config`);
+                contractConfig = await res.json();
+                copyTradeContract = new ethers.Contract(
+                    contractConfig.contractAddress,
+                    contractConfig.abi,
+                    signer
+                );
+            } catch (err) {
+                console.error('Failed to load contract config:', err);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SIGNALS
+        // ═══════════════════════════════════════════════════════════════
+        async function fetchSignals() {
+            try {
+                const response = await fetch(`${API_URL}/signals`);
+                const data = await response.json();
+                currentSignals = data.signals || [];
+                renderSignals(data.signals);
+                updateStats(data);
+            } catch (error) {
+                document.getElementById('signalsList').innerHTML = '<div class="loading">⚠️ Backend unreachable</div>';
+            }
+        }
+
+        function renderSignals(signals) {
+            const container = document.getElementById('signalsList');
+            if (!signals || signals.length === 0) {
+                container.innerHTML = '<div class="loading">No signals yet</div>';
+                return;
+            }
+            container.innerHTML = signals.map(signal => `
+                <div class="signal-item">
+                    <div class="signal-type ${signal.action.toLowerCase()}">${signal.action}</div>
+                    <div class="signal-info">
+                        <div class="signal-pair">${signal.pair}</div>
+                        <div class="signal-meta">${signal.txHash ? signal.txHash.slice(0, 10) + '...' : 'block-seeded'} · #${signal.blockNumber}</div>
+                    </div>
+                    <div class="signal-actions">
+                        <div class="confidence-wrap">
+                            <div class="confidence-value">${signal.confidence}%</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width:${signal.confidence}%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCopySignals() {
+            const container = document.getElementById('copySignalsList');
+            if (!currentSignals || currentSignals.length === 0) {
+                container.innerHTML = '<div class="loading">Waiting for signals...</div>';
+                return;
+            }
+            container.innerHTML = currentSignals.map((signal, idx) => `
+                <div class="signal-item">
+                    <div class="signal-type ${signal.action.toLowerCase()}">${signal.action}</div>
+                    <div class="signal-info">
+                        <div class="signal-pair">${signal.pair}</div>
+                        <div class="signal-meta">Confidence: ${signal.confidence}% · ${signal.reasoning || 'LLM inference'}</div>
+                    </div>
+                    <div class="signal-actions">
+                        <div class="confidence-wrap" style="margin-right:12px">
+                            <div class="confidence-value">${signal.confidence}%</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width:${signal.confidence}%"></div></div>
+                        </div>
+                        <button class="btn btn-sm" onclick="openTradeModal(${idx})" ${!userAddress ? 'disabled title="Connect wallet first"' : ''}>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(data) {
+            const accEl = document.getElementById('accuracy');
+            const sigEl = document.getElementById('signalsToday');
+            const blockEl = document.getElementById('blockNumber');
+
+            animateCount(accEl, parseFloat(data.accuracy), '', '%');
+            document.getElementById('inferenceMode').textContent = data.inferenceSource === 'ritual-llm-precompile' ? '🟢 On-Chain LLM' : '🟡 Block-Seeded';
+            
+            const sigCount = (data.signals || []).length * 12;
+            animateCount(sigEl, sigCount);
+            
+            const block = data.blockNumber || 0;
+            animateCount(blockEl, block, '#');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // COPY TRADE
+        // ═══════════════════════════════════════════════════════════════
+        function openTradeModal(signalIdx) {
+            if (!userAddress) {
+                showToast('Connect wallet first', true);
+                return;
+            }
+            const signal = currentSignals[signalIdx];
+            if (!signal) return;
+
+            pendingTrade = signal;
+            document.getElementById('modalTitle').textContent = `Copy Trade: ${signal.pair}`;
+            document.getElementById('modalInfo').innerHTML = `Signal: <strong>${signal.action}</strong> | Confidence: <strong>${signal.confidence}%</strong>`;
+            document.getElementById('tradeAmount').value = '500';
+            
+            const balEl = document.getElementById('ctBalance');
+            document.getElementById('modalBalance').value = balEl ? balEl.textContent : '$10,000';
+            
+            document.getElementById('tradeModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('tradeModal').classList.remove('active');
+            pendingTrade = null;
+        }
+
+        async function confirmTrade() {
+            if (!pendingTrade || !copyTradeContract) {
+                showToast('No trade or contract not loaded', true);
+                return;
+            }
+
+            const amount = parseInt(document.getElementById('tradeAmount').value);
+            if (amount < 100 || amount > 5000) {
+                showToast('Amount must be 100-5000', true);
+                return;
+            }
+
+            const btn = document.getElementById('confirmTradeBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting TX...';
+
+            try {
+                const actionMap = { 'BUY': 0, 'SELL': 1, 'HOLD': 2 };
+                const actionNum = actionMap[pendingTrade.action] || 0;
+                const amountWei = ethers.utils.parseEther(amount.toString());
+
+                const portfolio = await copyTradeContract.getPortfolio(userAddress);
+                if (!portfolio.initialized) {
+                    showToast('Initializing portfolio...');
+                    const initTx = await copyTradeContract.initPortfolio();
+                    await initTx.wait();
+                    showToast('Portfolio initialized! Now placing trade...');
+                }
+
+                const tx = await copyTradeContract.copyTrade(
+                    pendingTrade.pair,
+                    actionNum,
+                    pendingTrade.confidence,
+                    amountWei
+                );
+
+                showToast(`TX submitted: ${tx.hash.slice(0, 10)}...`);
+                const receipt = await tx.wait();
+
+                showToast(`✅ Trade opened! Block #${receipt.blockNumber}`);
+                addLogEntry(`Copy trade: ${pendingTrade.action} ${pendingTrade.pair} $${amount}`);
+                
+                closeModal();
+                loadPortfolio();
+                loadOpenPositions();
+            } catch (err) {
+                const msg = err.reason || err.message || 'Transaction failed';
+                showToast('❌ ' + msg.slice(0, 80), true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirm Trade';
+            }
+        }
+
+        async function closeTrade(tradeIndex) {
+            if (!copyTradeContract) return;
+            try {
+                showToast('Closing trade...');
+                const tx = await copyTradeContract.closeTrade(tradeIndex);
+                await tx.wait();
+                showToast('✅ Trade closed!');
+                loadPortfolio();
+                loadOpenPositions();
+            } catch (err) {
+                showToast('❌ ' + (err.reason || err.message).slice(0, 80), true);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // PORTFOLIO
+        // ═══════════════════════════════════════════════════════════════
+        async function loadPortfolio() {
+            if (!userAddress) return;
+
+            try {
+                const res = await fetch(`${API_URL}/copytrade/portfolio/${userAddress}`);
+                const data = await res.json();
+
+                if (!data.initialized) {
+                    document.getElementById('ctBalance').textContent = '$10,000';
+                    document.getElementById('pBalance').textContent = '$10,000';
+                    return;
+                }
+
+                const balance = parseFloat(data.balance);
+                const pnl = data.totalPnl / 100;
+                const winRate = data.totalTrades > 0 ? ((data.winCount / data.totalTrades) * 100).toFixed(1) + '%' : '—';
+
+                document.getElementById('ctBalance').textContent = '$' + balance.toLocaleString(undefined, {maximumFractionDigits: 0});
+                document.getElementById('ctPnl').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
+                document.getElementById('ctPnl').className = 'stat-value ' + (pnl >= 0 ? '' : 'negative');
+                document.getElementById('ctWinRate').textContent = winRate;
+
+                document.getElementById('pBalance').textContent = '$' + balance.toLocaleString(undefined, {maximumFractionDigits: 0});
+                document.getElementById('pTotalTrades').textContent = data.totalTrades;
+                document.getElementById('pWins').textContent = data.winCount;
+                document.getElementById('pLosses').textContent = data.lossCount;
+                document.getElementById('pPnl').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
+                document.getElementById('pPnl').className = 'value ' + (pnl >= 0 ? '' : 'negative');
+                document.getElementById('pWinRate').textContent = winRate;
+
+                loadTradeHistory();
+            } catch (err) {
+                console.error('Portfolio load error:', err);
+            }
+        }
+
+        async function loadOpenPositions() {
+            if (!userAddress) return;
+            try {
+                const res = await fetch(`${API_URL}/copytrade/trades/${userAddress}`);
+                const data = await res.json();
+
+                const container = document.getElementById('openPositions');
+                const openTrades = data.openTrades || [];
+
+                document.getElementById('ctOpenCount').textContent = openTrades.length;
+
+                if (openTrades.length === 0) {
+                    container.innerHTML = '<div style="color:#666;font-size:12px">No open positions</div>';
+                    return;
+                }
+
+                container.innerHTML = openTrades.map(t => `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,255,136,0.05)">
+                        <div>
+                            <span style="color:#fff;font-weight:bold">${t.pair}</span>
+                            <span style="color:${t.action === 'BUY' ? '#00ff88' : '#ff4444'};margin-left:6px">${t.action}</span>
+                            <span style="color:#666;margin-left:6px">$${parseFloat(t.amount).toFixed(0)}</span>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="closeTrade(${t.index})">Close</button>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Open positions error:', err);
+            }
+        }
+
+        async function loadTradeHistory() {
+            if (!userAddress) return;
+            try {
+                const res = await fetch(`${API_URL}/copytrade/trades/${userAddress}`);
+                const data = await res.json();
+
+                const container = document.getElementById('tradeHistory');
+                const trades = data.recentTrades || [];
+
+                if (trades.length === 0) {
+                    container.innerHTML = '<div class="loading">No trades yet. Copy a signal to get started!</div>';
+                    return;
+                }
+
+                container.innerHTML = trades.map(t => {
+                    const pnlVal = t.pnl / 100;
+                    return `
+                        <div class="trade-item">
+                            <span class="pair">${t.pair}</span>
+                            <span class="action ${t.action.toLowerCase()}">${t.action}</span>
+                            <span class="amount">$${parseFloat(t.amount).toFixed(0)}</span>
+                            <span class="status ${t.closed ? 'closed' : 'open'}">${t.closed ? 'CLOSED' : 'OPEN'}</span>
+                            ${t.closed ? `<span class="pnl ${pnlVal >= 0 ? 'positive' : 'negative'}">${pnlVal >= 0 ? '+' : ''}${pnlVal.toFixed(2)}%</span>` : '<span class="pnl" style="color:#666">—</span>'}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Trade history error:', err);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INFERENCE LOG
+        // ═══════════════════════════════════════════════════════════════
+        let prevLogCount = 0;
+        async function fetchInferenceLog() {
+            try {
+                const res = await fetch(`${API_URL}/inference/log`);
+                const data = await res.json();
+                const container = document.getElementById('logEntries');
+                if (data.logs && data.logs.length > 0) {
+                    // Filter: only show OK entries for clean display
+                    const filtered = data.logs.filter(l => l.type === 'ok');
+                    const isNew = filtered.length !== prevLogCount;
+                    prevLogCount = filtered.length;
+                    container.innerHTML = filtered.slice(0, 8).map((log, i) => {
+                        const time = new Date(log.time).toLocaleTimeString();
+                        const newClass = (isNew && i === 0) ? ' new-entry' : '';
+                        return `<div class="log-entry${newClass}"><span style="color:#666">${time}</span> <span class="log-status ${log.type}">${log.type.toUpperCase()}</span> ${log.msg}</div>`;
+                    }).join('');
+                }
+            } catch (e) {}
+        }
+
+        function addLogEntry(message) {
+            const log = document.getElementById('logEntries');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry new-entry';
+            entry.innerHTML = `<span style="color:#666">${time}</span> <span class="log-status">OK</span> ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            if (log.children.length > 8) log.removeChild(log.lastChild);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TOAST
+        // ═══════════════════════════════════════════════════════════════
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3500);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════
+        fetchSignals();
+        fetchInferenceLog();
+        setInterval(fetchSignals, 5000);
+        setInterval(fetchInferenceLog, 10000);
+
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            connectWallet();
+        }
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    userAddress = accounts[0];
+                    connectWallet();
+                } else {
+                    userAddress = null;
+                    document.getElementById('walletStatus').innerHTML = '<span class="dot"></span><span>not connected</span>';
+                    document.getElementById('connectBtn').textContent = 'Connect Wallet';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

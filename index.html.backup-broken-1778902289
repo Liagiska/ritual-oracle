@@ -6,7 +6,6 @@
     <title>Ritual Oracle — On-Chain AI Signal Bot</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         /* ═══ CSS VARIABLES FOR THEMING ═══ */
         :root {
@@ -65,7 +64,7 @@
             100%{background-position:10% 40%,90% 10%,60% 90%}
         }
 
-        .container{max-width:1400px;margin:0 auto;padding:20px;padding-bottom:120px;position:relative;z-index:1}
+        .container{max-width:1400px;margin:0 auto;padding:20px;position:relative;z-index:1}
 
         /* ═══ HEADER ═══ */
         header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--border-primary);margin-bottom:30px;flex-wrap:wrap;gap:12px}
@@ -148,18 +147,13 @@
         .stat-value.neutral{color:var(--accent-orange)}
 
         /* ═══ MAIN GRID ═══ */
-        .main-grid{display:grid;grid-template-columns:1fr 350px;gap:20px;align-items:start}
+        .main-grid{display:grid;grid-template-columns:1fr 350px;gap:20px}
         @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
         .signals-section,.info-card,.log-section,.portfolio-section{
             background:var(--bg-secondary);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
             border:1px solid var(--border-primary);border-radius:12px;padding:24px;transition:border-color 0.3s}
         .signals-section:hover,.info-card:hover,.log-section:hover{border-color:rgba(0,255,136,0.25)}
         .section-title{font-size:13px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-
-        /* ═══ PERFORMANCE DASHBOARD BADGES ═══ */
-        .accuracy-badge.high{background:rgba(0,255,136,0.2);color:var(--accent-green)}
-        .accuracy-badge.medium{background:rgba(255,166,0,0.2);color:var(--accent-orange)}
-        .accuracy-badge.low{background:rgba(255,68,68,0.2);color:var(--accent-red)}
 
         /* ═══ NETWORK INFO BOX (Signal Oracle) ═══ */
         .network-info-box{background:rgba(10,10,10,0.6);border:1px solid rgba(0,255,136,0.1);border-radius:8px;padding:16px;margin-bottom:16px}
@@ -260,16 +254,6 @@
         .log-status.wrn{color:var(--accent-orange)}
         .loading{text-align:center;padding:40px;color:var(--text-secondary)}
 
-        /* ═══ SKELETON LOADER ═══ */
-        .skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.03) 75%);
-            background-size:200% 100%;animation:skeletonShimmer 1.5s ease-in-out infinite;border-radius:6px}
-        @keyframes skeletonShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-        .skeleton-signal{height:80px;margin-bottom:12px}
-        .skeleton-stat{height:100px}
-        .skeleton-text{height:16px;margin-bottom:8px}
-        .skeleton-text.short{width:60%}
-        .light-mode .skeleton{background:linear-gradient(90deg,rgba(0,0,0,0.05) 25%,rgba(0,0,0,0.1) 50%,rgba(0,0,0,0.05) 75%);background-size:200% 100%}
-
         /* ═══ WALLET STATUS ═══ */
         .wallet-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
         .wallet-status .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-red);transition:all 0.3s}
@@ -283,28 +267,6 @@
         .toast.show{transform:translateY(0);opacity:1}
         .toast.error{border-color:rgba(255,68,68,0.5)}
 
-        /* ═══ WALLET MODAL ═══ */
-        .wallet-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
-            display:none;align-items:center;justify-content:center;z-index:3000;opacity:0;transition:opacity 0.3s}
-        .wallet-modal.show{display:flex;opacity:1}
-        .wallet-modal-content{background:rgba(17,17,17,0.95);border:1px solid rgba(0,255,136,0.3);border-radius:16px;
-            padding:32px;max-width:400px;width:90%;position:relative;transform:scale(0.9);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
-        .wallet-modal.show .wallet-modal-content{transform:scale(1)}
-        .wallet-modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#666;
-            font-size:24px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;
-            border-radius:6px;transition:all 0.3s}
-        .wallet-modal-close:hover{background:rgba(255,68,68,0.1);color:#ff4444}
-        .wallet-modal-icon{width:64px;height:64px;margin:0 auto 20px;background:rgba(0,255,136,0.1);border-radius:12px;
-            display:flex;align-items:center;justify-content:center;font-size:32px}
-        .wallet-modal-title{text-align:center;font-size:20px;font-weight:600;color:#fff;margin-bottom:12px}
-        .wallet-modal-address{text-align:center;font-family:monospace;color:#666;font-size:14px;margin-bottom:24px;
-            word-break:break-all;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px}
-        .wallet-modal-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;
-            background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:8px;margin-bottom:24px}
-        .wallet-modal-status .dot{width:8px;height:8px;border-radius:50%;background:#00ff88;
-            box-shadow:0 0 8px rgba(0,255,136,0.6);animation:dotBreathe 2s ease-in-out infinite}
-        .wallet-modal-status span{color:#00ff88;font-size:13px;font-weight:600}
-
         /* ═══ SCROLLBAR ═══ */
         ::-webkit-scrollbar{width:6px}
         ::-webkit-scrollbar-track{background:transparent}
@@ -313,120 +275,6 @@
         /* ═══ AUTO-REFRESH INDICATOR ═══ */
         .refresh-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent-green);margin-right:6px;animation:refreshPulse 5s ease-in-out infinite}
         @keyframes refreshPulse{0%,90%,100%{opacity:0.3;transform:scale(1)}95%{opacity:1;transform:scale(1.5)}}
-
-        /* ═══ TOUCH-FRIENDLY IMPROVEMENTS ═══ */
-        @media(hover:none){
-            /* Remove hover effects on touch devices */
-            .signal-item:hover{transform:none;border-color:var(--border-secondary)}
-            .stat-card:hover{transform:none;border-color:var(--border-primary)}
-            .btn:hover{transform:none}
-            .tab:hover{transform:none;color:var(--text-secondary)}
-            
-            /* Larger tap targets */
-            .btn{min-height:44px}
-            .tab{min-height:44px}
-        }
-
-        /* ═══════════════════════════════════════════════════════════════
-           MOBILE RESPONSIVE (screens < 768px)
-           ═══════════════════════════════════════════════════════════════ */
-        @media(max-width:768px){
-            /* Container padding */
-            .container{padding:12px}
-            
-            /* Header - push down for fixed ticker */
-            header{flex-direction:column;align-items:flex-start;gap:16px;padding:16px 0;margin-top:80px}
-            .logo{margin-bottom:8px}
-            .logo-text h1{font-size:20px}
-            .logo-text p{font-size:11px}
-            .badge{font-size:11px;padding:5px 10px}
-            
-            /* Tabs */
-            .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;padding-bottom:8px}
-            .tab{padding:10px 16px;font-size:13px;white-space:nowrap;flex-shrink:0}
-            
-            /* Stats grid */
-            .stats-grid{grid-template-columns:repeat(2,1fr);gap:12px}
-            .stat-card{padding:16px}
-            .stat-label{font-size:10px}
-            .stat-value{font-size:24px}
-            
-            /* Main grid - single column on mobile */
-            .main-grid{grid-template-columns:1fr;gap:16px}
-            
-            /* Sections */
-            .signals-section,.info-card,.log-section,.portfolio-section{padding:16px}
-            .section-title{font-size:12px;margin-bottom:16px}
-            
-            /* Signal items - stack vertically */
-            .signal-item{flex-direction:column;align-items:flex-start;gap:12px;padding:12px}
-            .signal-type{width:50px;height:28px;font-size:11px;margin-right:0;margin-bottom:8px}
-            .signal-info{width:100%}
-            .signal-pair{font-size:15px}
-            .signal-meta{font-size:10px}
-            .signal-actions{width:100%;justify-content:space-between}
-            
-            /* Confidence bar */
-            .confidence-wrap{flex:1}
-            .confidence-value{font-size:16px}
-            .confidence-bar{width:80px}
-            
-            /* Buttons */
-            .btn{padding:8px 16px;font-size:12px}
-            .btn-sm{padding:5px 12px;font-size:10px}
-            
-            /* Portfolio grid */
-            .portfolio-grid{grid-template-columns:1fr;gap:10px}
-            .portfolio-card{padding:14px}
-            .portfolio-card .value{font-size:20px}
-            .portfolio-card .label{font-size:10px}
-            
-            /* Trade items */
-            .trade-item{flex-wrap:wrap;font-size:12px;padding:10px}
-            .trade-item .pair{width:auto;margin-right:8px}
-            .trade-item .action{width:auto}
-            .trade-item .amount{width:auto}
-            .trade-item .pnl{margin-left:auto}
-            
-            /* Modal */
-            .modal{padding:24px;max-width:90%}
-            .modal h3{font-size:16px}
-            .modal-field input{padding:10px;font-size:13px}
-            
-            /* Chart container */
-            #copyTradeChart,#chartContainer{height:300px!important}
-            
-            /* Wallet dropdown */
-            #walletDropdown{right:12px;left:12px;width:auto}
-            
-            /* Toast */
-            .toast{bottom:12px;right:12px;left:12px;font-size:12px;padding:12px 16px}
-            
-            /* Feedback button & panel */
-            #feedbackBtn{width:48px;height:48px;bottom:16px;right:16px}
-            #feedbackBtn span{font-size:20px}
-            #feedbackPanel{width:calc(100vw - 32px);right:16px;bottom:72px;padding:16px}
-            #feedbackText{height:80px;font-size:12px}
-            
-            /* Footer */
-            footer{padding:20px 16px}
-            footer>div:first-child{flex-direction:column;gap:16px}
-            footer a{font-size:12px}
-            footer>div:last-child{font-size:10px;margin-top:16px}
-            
-            /* Network info */
-            .network-info-box{padding:12px}
-            .network-info-label,.network-value{font-size:12px}
-            
-            /* Log entries */
-            .log-entry{font-size:11px;padding:6px 0}
-            
-            /* Wallet modal */
-            .wallet-modal-content{padding:24px;max-width:90%}
-            .wallet-modal-icon{width:56px;height:56px;font-size:28px}
-            .wallet-modal-title{font-size:18px}
-            .wallet-modal-address{font-size:12px}
-        }
 
         /* ═══ PAGE LOAD ANIMATION ═══ */
         .container{animation:pageLoad 0.6s ease-out}
@@ -437,30 +285,6 @@
         .theme-toggle:hover{border-color:var(--accent-green)}
         .theme-toggle-slider{width:18px;height:18px;background:var(--accent-green);border-radius:50%;transition:transform 0.3s ease;display:flex;align-items:center;justify-content:center;font-size:10px}
         body.light-mode .theme-toggle-slider{transform:translateX(24px)}
-        
-        /* ═══ LIGHT MODE: GAS TRACKER & FEEDBACK ═══ */
-        body.light-mode #gasTracker {
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,180,100,0.3);
-        }
-        body.light-mode #gasTracker span {
-            color: #1a1a1a !important;
-        }
-        body.light-mode #feedbackPanel {
-            background: rgba(255,255,255,0.98);
-            border: 1px solid rgba(0,180,100,0.3);
-        }
-        body.light-mode #feedbackPanel h3 {
-            color: #1a1a1a;
-        }
-        body.light-mode #feedbackText {
-            background: rgba(0,0,0,0.03);
-            border: 1px solid rgba(0,0,0,0.1);
-            color: #1a1a1a;
-        }
-        body.light-mode #feedbackText::placeholder {
-            color: #999;
-        }
 
         /* ═══ LIVE MARKET TICKER ═══ */
         .market-ticker{position:sticky;top:0;z-index:100;background:var(--bg-secondary);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-primary);padding:12px 0;margin-bottom:20px;transition:all 0.3s}
@@ -480,8 +304,7 @@
         @keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
         
         @media(max-width:768px){
-            /* Ticker stays sticky on mobile (no fixed override) */
-            .market-ticker-inner{gap:12px;padding:0 12px}
+            .market-ticker-inner{gap:12px}
             .price-item{min-width:150px;padding:6px 12px}
             .price-value{font-size:14px}
             .price-sparkline{width:50px;height:20px}
@@ -546,10 +369,10 @@
     <div class="container">
         <header>
             <div class="logo">
-                <div class="logo-icon"><img src="images/ritual-logo.jpg" alt="Ritual" style="border-radius:8px"></div>
+                <div class="logo-icon"><img src="images/ritual.png" alt="Ritual"></div>
                 <div class="logo-text"><h1>Ritual Oracle</h1><p>on-chain ai signal bot + copy trade</p></div>
             </div>
-            <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap;position:relative">
+            <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap">
                 <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
                     <div class="theme-toggle-slider">🌙</div>
                 </div>
@@ -558,22 +381,7 @@
                     <span class="dot"></span>
                     <span>not connected</span>
                 </div>
-                <button class="btn" id="connectBtn" onclick="connectWallet()" style="position:relative">Connect Wallet</button>
-                <!-- Wallet Dropdown (inline, not popup) -->
-                <div id="walletDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;width:280px;background:rgba(17,17,17,0.95);border:1px solid rgba(0,255,136,0.2);border-radius:12px;padding:16px;z-index:9999;box-shadow:0 8px 40px rgba(0,0,0,0.5);backdrop-filter:blur(10px)">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-                        <div style="width:32px;height:32px;background:rgba(0,255,136,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center">💼</div>
-                        <div>
-                            <div style="color:var(--text-white);font-size:12px;font-weight:bold">Wallet Connected</div>
-                            <div id="walletDropdownAddr" style="color:var(--text-secondary);font-size:11px">0x0000...0000</div>
-                        </div>
-                    </div>
-                    <div style="padding:6px 12px;background:rgba(0,255,136,0.1);border-radius:6px;display:flex;align-items:center;gap:6px;margin-bottom:12px">
-                        <span class="dot connected"></span>
-                        <span style="color:var(--accent-green);font-size:11px">Ritual Chain Connected</span>
-                    </div>
-                    <button onclick="disconnectWallet()" style="width:100%;padding:10px;background:rgba(255,50,50,0.15);border:1px solid rgba(255,50,50,0.3);border-radius:8px;color:#ff4444;font-size:12px;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(255,50,50,0.25)'" onmouseout="this.style.background='rgba(255,50,50,0.15)'">Disconnect Wallet</button>
-                </div>
+                <button class="btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
             </div>
         </header>
 
@@ -616,7 +424,6 @@
             <div class="tab" onclick="switchTab('copytrade')"><span class="tab-icon">📈</span>Copy Trade</div>
             <div class="tab" onclick="switchTab('portfolio')"><span class="tab-icon">💼</span>Portfolio</div>
             <div class="tab" onclick="switchTab('history')"><span class="tab-icon">📊</span>History</div>
-            <div class="tab" onclick="switchTab('performance')"><span class="tab-icon">📈</span>Performance</div>
         </div>
 
         <!-- ═══════════════════════════════════════════ -->
@@ -628,7 +435,6 @@
                 <div class="stat-card"><div class="stat-label">Accuracy (7D)</div><div class="stat-value" id="accuracy">—</div></div>
                 <div class="stat-card"><div class="stat-label">Inference Mode</div><div class="stat-value" id="inferenceMode" style="font-size:14px">—</div></div>
                 <div class="stat-card"><div class="stat-label">Ritual Block</div><div class="stat-value" id="blockNumber">—</div></div>
-                <div class="stat-card"><div class="stat-label">Total Inferences</div><div class="stat-value" id="totalInferences">—</div></div>
             </div>
 
             <div class="main-grid">
@@ -673,46 +479,18 @@
             </div>
 
             <!-- Coin Selector -->
-            <div class="coin-selector" style="display:flex;flex-wrap:wrap;gap:8px">
-                <div class="coin-tab active" onclick="selectCoin('bitcoin', 'BTC', '₿', event)" style="flex:1;min-width:100px">
+            <div class="coin-selector">
+                <div class="coin-tab active" onclick="selectCoin('bitcoin', 'BTC', '₿', event)">
                     <span style="font-size:20px">₿</span>
                     <span>BTC</span>
                 </div>
-                <div class="coin-tab" onclick="selectCoin('ethereum', 'ETH', 'Ξ', event)" style="flex:1;min-width:100px">
+                <div class="coin-tab" onclick="selectCoin('ethereum', 'ETH', 'Ξ', event)">
                     <span style="font-size:20px">Ξ</span>
                     <span>ETH</span>
                 </div>
-                <div class="coin-tab" onclick="selectCoin('solana', 'SOL', '◎', event)" style="flex:1;min-width:100px">
+                <div class="coin-tab" onclick="selectCoin('solana', 'SOL', '◎', event)">
                     <span style="font-size:20px">◎</span>
                     <span>SOL</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('avalanche-2', 'AVAX', '🔺', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🔺</span>
-                    <span>AVAX</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('matic-network', 'MATIC', '🟣', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🟣</span>
-                    <span>MATIC</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('chainlink', 'LINK', '🔗', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🔗</span>
-                    <span>LINK</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('uniswap', 'UNI', '🦄', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🦄</span>
-                    <span>UNI</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('aave', 'AAVE', '👻', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">👻</span>
-                    <span>AAVE</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('arbitrum', 'ARB', '🔵', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🔵</span>
-                    <span>ARB</span>
-                </div>
-                <div class="coin-tab" onclick="selectCoin('optimism', 'OP', '🔴', event)" style="flex:1;min-width:100px">
-                    <span style="font-size:20px">🔴</span>
-                    <span>OP</span>
                 </div>
             </div>
 
@@ -738,14 +516,49 @@
 
             <!-- Two Column Layout: Leaderboard + Copy Signals -->
             <div class="main-grid">
-                <!-- Market News Feed Section (Left) -->
+                <!-- AI Chat Section (Left) -->
                 <div class="signals-section">
                     <div class="section-title">
-                        <span>📰 MARKET NEWS</span>
-                        <span style="font-size:11px;color:#444">auto-refresh 10m</span>
+                        <span>🤖 AI TRADING ASSISTANT</span>
+                        <span style="font-size:11px;color:#444">powered by Ritual on-chain LLM</span>
                     </div>
-                    <div id="newsContainer" style="display:flex;flex-direction:column;height:500px;overflow-y:auto;padding:16px;gap:12px">
-                        <div class="loading" id="newsLoading">Loading crypto news...</div>
+                    <div id="aiChatContainer" style="display:flex;flex-direction:column;height:500px">
+                        <div id="aiChatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px">
+                            <div class="ai-message" style="background:rgba(0,255,136,0.1);border-left:3px solid var(--accent-green);padding:12px;border-radius:8px">
+                                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">🤖 AI Assistant</div>
+                                <div style="color:var(--text-white);line-height:1.6">
+                                    Hi! I'm your on-chain AI trading assistant powered by Ritual's LLM precompile (0x0802).
+                                    <br><br>
+                                    Ask me anything:
+                                    <br>• "Should I buy BTC now?"
+                                    <br>• "Analyze current market sentiment"
+                                    <br>• "What's the risk level for ETH?"
+                                    <br><br>
+                                    All my responses are verified on-chain! 🔗
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding:16px;border-top:1px solid rgba(255,255,255,0.1)">
+                            <div style="display:flex;gap:8px">
+                                <input type="text" id="aiChatInput" placeholder="Ask me anything about trading..." 
+                                       style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:var(--text-white);font-size:13px"
+                                       onkeypress="if(event.key==='Enter') sendAIMessage()">
+                                <button class="action-btn" onclick="sendAIMessage()" style="padding:12px 24px;white-space:nowrap">
+                                    Send
+                                </button>
+                            </div>
+                            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+                                <button class="action-btn" onclick="quickAsk('Should I buy BTC now?')" style="padding:6px 12px;font-size:11px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--accent-green);border-radius:6px;cursor:pointer;transition:all 0.2s">
+                                    💡 Buy BTC?
+                                </button>
+                                <button class="action-btn" onclick="quickAsk('Analyze market sentiment')" style="padding:6px 12px;font-size:11px;background:rgba(0,204,255,0.1);border:1px solid rgba(0,204,255,0.3);color:var(--accent-cyan);border-radius:6px;cursor:pointer;transition:all 0.2s">
+                                    📊 Market Sentiment
+                                </button>
+                                <button class="action-btn" onclick="quickAsk('Risk assessment for ETH')" style="padding:6px 12px;font-size:11px;background:rgba(255,166,0,0.1);border:1px solid rgba(255,166,0,0.3);color:var(--accent-orange);border-radius:6px;cursor:pointer;transition:all 0.2s">
+                                    ⚠️ Risk Check
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -792,118 +605,55 @@
         <!-- TAB 4: HISTORY -->
         <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="tab-history">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Total Signals</div><div class="stat-value" id="histTotalSignals">—</div></div>
+                <div class="stat-card"><div class="stat-label">Accuracy (1h)</div><div class="stat-value" id="histAccuracy1h">—</div></div>
+                <div class="stat-card"><div class="stat-label">Accuracy (4h)</div><div class="stat-value" id="histAccuracy4h">—</div></div>
+                <div class="stat-card"><div class="stat-label">Accuracy (24h)</div><div class="stat-value" id="histAccuracy24h">—</div></div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="signals-section" style="margin-bottom:20px;padding:15px">
+                <div style="display:flex;gap:15px;flex-wrap:wrap;align-items:center">
+                    <div>
+                        <label style="font-size:12px;color:var(--text-secondary);margin-right:8px">Pair:</label>
+                        <select id="histFilterPair" onchange="loadSignalHistory()" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-primary);padding:6px 12px;border-radius:4px;font-family:'Courier New',monospace">
+                            <option value="">All Pairs</option>
+                            <option value="BTC/USDC">BTC/USDC</option>
+                            <option value="ETH/USDC">ETH/USDC</option>
+                            <option value="SOL/USDC">SOL/USDC</option>
+                            <option value="AVAX/USDC">AVAX/USDC</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;color:var(--text-secondary);margin-right:8px">Limit:</label>
+                        <select id="histFilterLimit" onchange="loadSignalHistory()" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-primary);padding:6px 12px;border-radius:4px;font-family:'Courier New',monospace">
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="loadSignalHistory()" style="padding:6px 16px;font-size:13px">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <!-- Signal History Table -->
             <div class="signals-section">
                 <div class="section-title">
                     <span>SIGNAL HISTORY</span>
-                    <span style="font-size:11px;color:#444">past predictions & outcomes</span>
+                    <span style="font-size:11px;color:#444" id="histPaginationInfo">—</span>
                 </div>
-                <div id="signalHistory">
+                <div id="historyTable">
                     <div class="loading">Loading signal history...</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════ -->
-        <!-- TAB 5: PERFORMANCE DASHBOARD -->
-        <!-- ═══════════════════════════════════════════ -->
-        <div class="tab-content" id="tab-performance">
-            <!-- Stats Overview Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">7-Day Accuracy</div>
-                    <div class="stat-value" id="perf-accuracy">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px" id="perf-accuracy-change">—</div>
+                
+                <!-- Pagination Controls -->
+                <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;padding:15px" id="histPagination">
+                    <button class="btn btn-outline" onclick="loadSignalHistory('prev')" id="histPrevBtn" disabled style="padding:8px 16px;font-size:13px">← Previous</button>
+                    <button class="btn btn-outline" onclick="loadSignalHistory('next')" id="histNextBtn" disabled style="padding:8px 16px;font-size:13px">Next →</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Signals</div>
-                    <div class="stat-value" id="perf-total-signals">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px" id="perf-signals-change">—</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Win Rate</div>
-                    <div class="stat-value" id="perf-win-rate">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">success rate</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Simulated ROI (7D)</div>
-                    <div class="stat-value" id="perf-roi">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px" id="perf-roi-usd">—</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Avg Confidence</div>
-                    <div class="stat-value" id="perf-confidence">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">LLM confidence</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Inferences</div>
-                    <div class="stat-value" id="perf-inferences">—</div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">on-chain calls</div>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
-                <!-- Accuracy Over Time Chart -->
-                <div class="stat-card" style="padding:24px">
-                    <div style="font-size:14px;color:var(--accent-green);margin-bottom:20px;display:flex;align-items:center;gap:8px">
-                        📊 Accuracy Over Time (7D)
-                    </div>
-                    <div style="position:relative;height:300px">
-                        <canvas id="accuracyChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Win Rate by Coin Chart -->
-                <div class="stat-card" style="padding:24px">
-                    <div style="font-size:14px;color:var(--accent-green);margin-bottom:20px;display:flex;align-items:center;gap:8px">
-                        🎯 Win Rate by Coin
-                    </div>
-                    <div style="position:relative;height:300px">
-                        <canvas id="winRateChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- ROI Simulation Chart (Full Width) -->
-                <div class="stat-card" style="padding:24px;grid-column:1/-1">
-                    <div style="font-size:14px;color:var(--accent-green);margin-bottom:20px;display:flex;align-items:center;gap:8px">
-                        💰 Simulated ROI (If you followed all signals)
-                    </div>
-                    <div style="position:relative;height:300px">
-                        <canvas id="roiChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Table -->
-            <div class="stat-card" style="padding:24px;overflow-x:auto">
-                <div style="font-size:14px;color:var(--accent-green);margin-bottom:20px">
-                    📋 Detailed Performance by Coin
-                </div>
-                <table style="width:100%;border-collapse:collapse">
-                    <thead>
-                        <tr style="border-bottom:1px solid var(--border-primary)">
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Coin</th>
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Total Signals</th>
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Win Rate</th>
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Accuracy</th>
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Avg Confidence</th>
-                            <th style="text-align:left;padding:12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Simulated ROI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="performanceTableBody">
-                        <tr><td colspan="6" style="padding:20px;text-align:center;color:var(--text-secondary)">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Note -->
-            <div style="background:rgba(0,255,136,0.05);border-left:4px solid var(--accent-green);padding:16px;margin-top:30px;border-radius:4px;font-size:13px;line-height:1.6">
-                <strong style="color:var(--accent-green)">📝 About Performance Metrics:</strong><br>
-                • <strong>Accuracy</strong> = Correct predictions / Total signals<br>
-                • <strong>Win Rate</strong> = Profitable trades / Total trades (simulated)<br>
-                • <strong>Simulated ROI</strong> = Hypothetical returns if you followed all signals with equal position sizes<br>
-                • <strong>Confidence</strong> = Average LLM confidence score from on-chain inference<br>
-                • All data is pulled from <code style="background:rgba(0,255,136,0.1);padding:2px 6px;border-radius:3px">signals.db</code> and <code style="background:rgba(0,255,136,0.1);padding:2px 6px;border-radius:3px">accuracy-tracker.js</code>
             </div>
         </div>
     </div>
@@ -925,7 +675,7 @@
             </div>
             <div class="modal-buttons">
                 <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-                <button class="btn" id="confirmTradeBtn" onclick="confirmCopyTrade(event)">Confirm Trade</button>
+                <button class="btn" id="confirmTradeBtn" onclick="confirmTrade()">Confirm Trade</button>
             </div>
         </div>
     </div>
@@ -1283,14 +1033,7 @@
                 const symbolMap = {
                     'bitcoin': 'BTCUSDT',
                     'ethereum': 'ETHUSDT',
-                    'solana': 'SOLUSDT',
-                    'avalanche-2': 'AVAXUSDT',
-                    'matic-network': 'MATICUSDT',
-                    'chainlink': 'LINKUSDT',
-                    'uniswap': 'UNIUSDT',
-                    'aave': 'AAVEUSDT',
-                    'arbitrum': 'ARBUSDT',
-                    'optimism': 'OPUSDT'
+                    'solana': 'SOLUSDT'
                 };
                 
                 const symbol = symbolMap[coinId];
@@ -1402,132 +1145,107 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // MARKET NEWS FEED FUNCTIONS
+        // AI CHAT FUNCTIONS
         // ═══════════════════════════════════════════════════════════════
         
-        async function fetchCryptoNews() {
-            const container = document.getElementById('newsContainer');
+        async function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Show user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Show loading
+            const loadingId = addChatMessage('Analyzing on-chain...', 'loading');
+            
             try {
-                // Fetch from our Vercel proxy (avoids CORS)
-                const response = await fetch('/api/news');
-                
-                if (!response.ok) {
-                    throw new Error('News API failed');
-                }
+                // Call backend AI endpoint
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        context: {
+                            currentCoin: window.selectedCoin,
+                            currentPrice: document.getElementById('selectedCoinPrice')?.textContent || 'N/A',
+                            signals: currentSignals || []
+                        }
+                    })
+                });
                 
                 const data = await response.json();
-                const articles = data.articles || [];
                 
-                if (articles.length === 0) {
-                    // Fallback to generated news
-                    renderNews(generateNewsFromSignals());
-                } else {
-                    renderNews(articles);
-                }
+                // Remove loading message
+                document.getElementById(loadingId)?.remove();
+                
+                // Show AI response
+                addChatMessage(data.answer || data.error || 'Error: No response', 'ai', data.txHash);
                 
             } catch (error) {
-                console.error('News fetch error:', error);
-                // Fallback to generated news
-                renderNews(generateNewsFromSignals());
+                document.getElementById(loadingId)?.remove();
+                addChatMessage('⚠️ Error connecting to AI. Please try again.', 'error');
+                console.error('AI chat error:', error);
             }
         }
         
-        function generateNewsFromSignals() {
-            const now = Date.now();
-            const newsTemplates = [
-                { title: 'Bitcoin holds steady above $81K as market awaits Fed decision', source: 'CryptoMarket', sentiment: 'positive' },
-                { title: 'Ethereum developers confirm next upgrade timeline for Q3 2026', source: 'CoinDesk', sentiment: 'positive' },
-                { title: 'Solana DeFi TVL reaches new all-time high amid ecosystem growth', source: 'The Block', sentiment: 'positive' },
-                { title: 'Ritual Network testnet sees surge in on-chain AI inference activity', source: 'Ritual Blog', sentiment: 'positive' },
-                { title: 'Crypto market sentiment shifts to neutral as volatility decreases', source: 'CoinTelegraph', sentiment: 'neutral' },
-                { title: 'AVAX ecosystem expands with new DeFi protocols launching this week', source: 'Avalanche Times', sentiment: 'positive' },
-                { title: 'SEC delays decision on spot ETH ETF options trading', source: 'Bloomberg', sentiment: 'negative' },
-                { title: 'On-chain AI models show increasing accuracy in price predictions', source: 'DeFi Pulse', sentiment: 'positive' },
-                { title: 'Major DeFi protocol announces integration with Ritual Chain', source: 'DeFi Llama', sentiment: 'positive' },
-                { title: 'Institutional investors increase crypto holdings amid market stability', source: 'CoinDesk', sentiment: 'positive' },
-                { title: 'Layer 2 solutions see record transaction volumes this week', source: 'The Block', sentiment: 'positive' },
-                { title: 'Crypto regulation clarity expected in upcoming G20 summit', source: 'Reuters', sentiment: 'neutral' }
-            ];
-            
-            // Shuffle and pick 8 random news
-            const shuffled = newsTemplates.sort(() => Math.random() - 0.5).slice(0, 8);
-            
-            // Generate with dynamic timestamps (spread over last 2 hours)
-            return shuffled.map((item, idx) => ({
-                title: item.title,
-                source: { title: item.source },
-                published_at: new Date(now - (idx * 15 * 60 * 1000)).toISOString(), // 15 min intervals
-                sentiment: item.sentiment
-            }));
+        function quickAsk(question) {
+            document.getElementById('aiChatInput').value = question;
+            sendAIMessage();
         }
         
-        function renderNews(articles) {
-            const container = document.getElementById('newsContainer');
-            container.innerHTML = '';
+        function addChatMessage(text, type, txHash) {
+            const messagesDiv = document.getElementById('aiChatMessages');
+            const msgId = 'msg-' + Date.now();
             
-            const items = articles.slice(0, 10);
+            let bgColor, borderColor, icon;
             
-            items.forEach(article => {
-                const title = article.title || 'Untitled';
-                const source = article.source?.title || article.domain || 'Crypto News';
-                const time = getTimeAgo(article.published_at || article.created_at);
-                const sentiment = article.votes?.positive > article.votes?.negative ? 'positive' : 
-                                  article.votes?.negative > article.votes?.positive ? 'negative' : 
-                                  article.sentiment || 'neutral';
-                
-                let sentimentIcon, sentimentText, borderColor;
-                switch(sentiment) {
-                    case 'positive':
-                        sentimentIcon = '📈';
-                        sentimentText = 'Bullish';
-                        borderColor = 'var(--accent-green)';
-                        break;
-                    case 'negative':
-                        sentimentIcon = '📉';
-                        sentimentText = 'Bearish';
-                        borderColor = 'var(--accent-red)';
-                        break;
-                    default:
-                        sentimentIcon = '➡️';
-                        sentimentText = 'Neutral';
-                        borderColor = 'rgba(255,255,255,0.3)';
-                }
-                
-                const newsDiv = document.createElement('div');
-                newsDiv.style.cssText = `background:rgba(255,255,255,0.03);border-left:3px solid ${borderColor};padding:12px;border-radius:8px;cursor:pointer;transition:all 0.2s`;
-                newsDiv.onmouseover = function() { this.style.background = 'rgba(255,255,255,0.06)'; };
-                newsDiv.onmouseout = function() { this.style.background = 'rgba(255,255,255,0.03)'; };
-                
-                if (article.url) {
-                    newsDiv.onclick = function() { window.open(article.url, '_blank'); };
-                }
-                
-                newsDiv.innerHTML = `
-                    <div style="color:var(--text-white);font-size:13px;line-height:1.5;margin-bottom:8px">${title}</div>
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:11px;color:var(--text-secondary)">${source} • ${time}</span>
-                        <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:${borderColor}22;color:${borderColor === 'rgba(255,255,255,0.3)' ? '#888' : borderColor}">${sentimentIcon} ${sentimentText}</span>
-                    </div>
-                `;
-                
-                container.appendChild(newsDiv);
-            });
+            switch(type) {
+                case 'user':
+                    bgColor = 'rgba(255,255,255,0.05)';
+                    borderColor = 'rgba(255,255,255,0.2)';
+                    icon = '👤';
+                    break;
+                case 'ai':
+                    bgColor = 'rgba(0,255,136,0.1)';
+                    borderColor = 'var(--accent-green)';
+                    icon = '🤖';
+                    break;
+                case 'loading':
+                    bgColor = 'rgba(255,255,255,0.03)';
+                    borderColor = 'rgba(255,255,255,0.1)';
+                    icon = '⏳';
+                    break;
+                case 'error':
+                    bgColor = 'rgba(255,0,0,0.1)';
+                    borderColor = '#ff4444';
+                    icon = '⚠️';
+                    break;
+            }
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.id = msgId;
+            msgDiv.className = 'chat-message';
+            msgDiv.style.cssText = `background:${bgColor};border-left:3px solid ${borderColor};padding:12px;border-radius:8px`;
+            
+            msgDiv.innerHTML = `
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">
+                    ${icon} ${type === 'user' ? 'You' : type === 'ai' ? 'AI Assistant' : type === 'loading' ? 'Processing' : 'Error'}
+                </div>
+                <div style="color:var(--text-white);line-height:1.6;white-space:pre-wrap">${text}</div>
+                ${txHash ? `<a href="https://explorer.ritual.net/tx/${txHash}" target="_blank" 
+                    style="display:inline-block;margin-top:8px;font-size:11px;color:var(--accent-green);text-decoration:none">
+                    🔗 Verified on-chain
+                </a>` : ''}
+            `;
+            
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            return msgId;
         }
-        
-        function getTimeAgo(dateStr) {
-            if (!dateStr) return 'just now';
-            const diff = Date.now() - new Date(dateStr).getTime();
-            const mins = Math.floor(diff / 60000);
-            if (mins < 1) return 'just now';
-            if (mins < 60) return mins + 'm ago';
-            const hours = Math.floor(mins / 60);
-            if (hours < 24) return hours + 'h ago';
-            return Math.floor(hours / 24) + 'd ago';
-        }
-        
-        // Fetch news on load and auto-refresh every 10 minutes
-        fetchCryptoNews();
-        setInterval(fetchCryptoNews, 600000);
 
         // ═══════════════════════════════════════════════════════════════
         // PARTICLE SYSTEM
@@ -1620,18 +1338,7 @@
         // ═══════════════════════════════════════════════════════════════
         // CONFIG
         // ═══════════════════════════════════════════════════════════════
-        const API_URL = window.location.hostname === 'localhost' ? '/api' : '/api';
-        const BACKEND_URL = window.location.hostname === 'localhost' ? '/api' : '/api/proxy';
-        
-        // Use BACKEND_URL for contract-related endpoints
-        const getApiUrl = (endpoint) => {
-            if (endpoint.includes('copytrade/config') || 
-                endpoint.includes('copytrade/portfolio') || 
-                endpoint.includes('copytrade/trades')) {
-                return BACKEND_URL;
-            }
-            return API_URL;
-        };
+        const API_URL = '/api';
         const RITUAL_CHAIN_ID = 1979;
         const RITUAL_RPC = 'https://rpc.ritualfoundation.org';
 
@@ -1642,6 +1349,11 @@
         let contractConfig = null;
         let currentSignals = [];
         let pendingTrade = null;
+
+        // History tab state
+        let historyOffset = 0;
+        let historyLimit = 50;
+        let historyHasMore = false;
 
         // ═══════════════════════════════════════════════════════════════
         // TAB SWITCHING
@@ -1706,8 +1418,10 @@
                 renderCopySignals();
             }
             if (tab === 'portfolio') loadPortfolio();
-            if (tab === 'history') loadSignalHistory();
-            if (tab === 'performance') loadPerformanceDashboard();
+            if (tab === 'history') {
+                loadSignalHistory();
+                loadHistorySummary();
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1748,10 +1462,7 @@
 
                 const short = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('walletStatus').innerHTML = `<span class="dot connected"></span><span class="wallet-addr">${short}</span>`;
-                
-                const connectBtn = document.getElementById('connectBtn');
-                connectBtn.textContent = short;
-                connectBtn.onclick = showWalletModal;
+                document.getElementById('connectBtn').textContent = short;
 
                 await loadContractConfig();
                 showToast('Wallet connected to Ritual Chain');
@@ -1759,69 +1470,20 @@
 
                 loadPortfolio();
                 loadOpenPositions();
-                updateGasBalance(); // Show gas tracker
             } catch (err) {
                 showToast('Connection failed: ' + err.message, true);
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // GAS TRACKER
-        // ═══════════════════════════════════════════════════════════════
-        async function updateGasBalance() {
-            if (!provider || !userAddress) return;
-            
-            try {
-                const balance = await provider.getBalance(userAddress);
-                const balanceInEth = ethers.utils.formatEther(balance);
-                const balanceNum = parseFloat(balanceInEth);
-                
-                document.getElementById('gasBalance').textContent = balanceNum.toFixed(4);
-                
-                // Show warning if balance < 0.1 RITUAL
-                if (balanceNum < 0.1) {
-                    document.getElementById('gasWarning').style.display = 'block';
-                } else {
-                    document.getElementById('gasWarning').style.display = 'none';
-                }
-            } catch (err) {
-                console.error('Gas balance fetch error:', err);
-            }
-        }
-
         async function loadContractConfig() {
             try {
-                // Try backend proxy first
-                const res = await fetch(`${BACKEND_URL}/copytrade/config`);
-                if (res.ok) {
-                    contractConfig = await res.json();
-                } else {
-                    // Fallback: load ABI from static file
-                    console.log('Backend unreachable, loading static ABI');
-                    const abiRes = await fetch('/abi.json');
-                    const abi = await abiRes.json();
-                    contractConfig = {
-                        contractAddress: '0x43c007C37Db5684ae0913C680F680f7cB22a7A5b',
-                        chainId: 1979,
-                        rpc: 'https://rpc.ritualfoundation.org',
-                        abi: abi,
-                        initialBalance: '10000',
-                        minTrade: '100',
-                        maxTrade: '5000'
-                    };
-                }
-                
-                // Only create contract if ABI is not empty
-                if (contractConfig.abi && contractConfig.abi.length > 0) {
-                    copyTradeContract = new ethers.Contract(
-                        contractConfig.contractAddress,
-                        contractConfig.abi,
-                        signer
-                    );
-                    console.log('✅ Contract loaded:', contractConfig.contractAddress);
-                } else {
-                    console.warn('Contract ABI not available - copy trade disabled');
-                }
+                const res = await fetch(`${API_URL}/copytrade/config`);
+                contractConfig = await res.json();
+                copyTradeContract = new ethers.Contract(
+                    contractConfig.contractAddress,
+                    contractConfig.abi,
+                    signer
+                );
             } catch (err) {
                 console.error('Failed to load contract config:', err);
             }
@@ -1831,45 +1493,20 @@
         // SIGNALS
         // ═══════════════════════════════════════════════════════════════
         async function fetchSignals() {
-            // Silent background update (no loading animation)
-            
             try {
-                const response = await fetch(`${API_URL}/signals/latest`);
+                const response = await fetch(`${API_URL}/signals`);
                 const data = await response.json();
-                let signals = data.signals || [];
-                
-                // Augment with additional pairs (frontend-only)
-                const additionalPairs = ['MATIC/USDC', 'LINK/USDC', 'UNI/USDC', 'AAVE/USDC', 'ARB/USDC', 'OP/USDC'];
-                const actions = ['BUY', 'SELL']; // Only BUY/SELL (HOLD not supported by contract)
-                
-                additionalPairs.forEach(pair => {
-                    signals.push({
-                        pair: pair,
-                        action: actions[Math.floor(Math.random() * actions.length)],
-                        confidence: Math.floor(Math.random() * 30) + 65, // 65-95%
-                        blockNumber: data.blockNumber || 16325000,
-                        txHash: null,
-                        reasoning: 'LLM inference'
-                    });
-                });
-                
-                currentSignals = signals;
-                renderSignals(signals);
+                currentSignals = data.signals || [];
+                renderSignals(data.signals);
                 updateStats(data);
             } catch (error) {
-                console.error('Fetch signals error:', error);
                 document.getElementById('signalsList').innerHTML = '<div class="loading">⚠️ Backend unreachable</div>';
             }
         }
 
         function renderSignals(signals) {
             const container = document.getElementById('signalsList');
-            if (!signals) {
-                // Show skeleton loader while fetching
-                container.innerHTML = Array(3).fill(0).map(() => '<div class="skeleton skeleton-signal"></div>').join('');
-                return;
-            }
-            if (signals.length === 0) {
+            if (!signals || signals.length === 0) {
                 container.innerHTML = '<div class="loading">No signals yet</div>';
                 return;
             }
@@ -1885,9 +1522,6 @@
                             <div class="confidence-value">${signal.confidence}%</div>
                             <div class="confidence-bar"><div class="confidence-fill" style="width:${signal.confidence}%"></div></div>
                         </div>
-                        <button class="btn-sm" onclick="shareSignal('${signal.action}', '${signal.pair}', ${signal.confidence}, '${signal.blockNumber}')" title="Share to X/Twitter" style="font-size:11px;padding:4px 10px">
-                            Share
-                        </button>
                     </div>
                 </div>
             `).join('');
@@ -1923,7 +1557,6 @@
             const accEl = document.getElementById('accuracy');
             const sigEl = document.getElementById('signalsToday');
             const blockEl = document.getElementById('blockNumber');
-            const totalInfEl = document.getElementById('totalInferences');
 
             animateCount(accEl, parseFloat(data.accuracy), '', '%');
             document.getElementById('inferenceMode').textContent = data.inferenceSource === 'ritual-llm-precompile' ? '🟢 On-Chain LLM' : '🟡 Block-Seeded';
@@ -1933,10 +1566,6 @@
             
             const block = data.blockNumber || 0;
             animateCount(blockEl, block, '#');
-            
-            // Total inferences (mock: accumulate from signals count)
-            const totalInf = data.totalInferences || (sigCount * 8); // Estimate
-            animateCount(totalInfEl, totalInf);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1949,12 +1578,6 @@
             }
             const signal = currentSignals[signalIdx];
             if (!signal) return;
-            
-            // Contract only supports BUY/SELL (not HOLD)
-            if (signal.action === 'HOLD') {
-                showToast('⚠️ HOLD signals cannot be traded (contract supports BUY/SELL only)', true);
-                return;
-            }
 
             pendingTrade = signal;
             document.getElementById('modalTitle').textContent = `Copy Trade: ${signal.pair}`;
@@ -1972,74 +1595,25 @@
             pendingTrade = null;
         }
 
-        async function confirmCopyTrade(event) {
-            if (!pendingTrade) return;
-            
-            // Get button reference (works with or without event)
-            let btn = event ? event.target : document.getElementById('confirmTradeBtn');
-            if (!btn) {
-                console.error('Confirm button not found');
+        async function confirmTrade() {
+            if (!pendingTrade || !copyTradeContract) {
+                showToast('No trade or contract not loaded', true);
                 return;
             }
-            
+
+            const amount = parseInt(document.getElementById('tradeAmount').value);
+            if (amount < 100 || amount > 5000) {
+                showToast('Amount must be 100-5000', true);
+                return;
+            }
+
+            const btn = document.getElementById('confirmTradeBtn');
             btn.disabled = true;
-            btn.textContent = 'Processing...';
-            
+            btn.textContent = 'Submitting TX...';
+
             try {
-                const amount = parseFloat(document.getElementById('tradeAmount').value);
-                if (!amount || amount <= 0) {
-                    showToast('❌ Invalid amount', true);
-                    return;
-                }
-                
-                const actionNum = ['BUY', 'SELL', 'HOLD'].indexOf(pendingTrade.action);
-                
-                // Check if we should use demo mode (testnet without funded contract)
-                const useDemoMode = !copyTradeContract || RITUAL_CHAIN_ID === 1979;
-                
-                if (useDemoMode) {
-                    // DEMO MODE: Pure frontend simulation
-                    console.log('Using demo mode - no on-chain transaction');
-                    
-                    showToast('📝 Demo Mode: Simulating trade...');
-                    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate TX delay
-                    
-                    // Simulate successful trade
-                    const mockBlockNumber = Math.floor(Math.random() * 10000) + 10000;
-                    showToast(`✅ Demo trade recorded! Block #${mockBlockNumber}`);
-                    addLogEntry(`Demo trade: ${pendingTrade.action} ${pendingTrade.pair} $${amount}`);
-                    
-                    // Update balance
-                    const currentBalance = parseFloat(document.getElementById('pBalance').textContent.replace(/[$,]/g, ''));
-                    const newBalance = currentBalance - amount;
-                    document.getElementById('pBalance').textContent = '$' + newBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
-                    document.getElementById('ctBalance').textContent = '$' + newBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
-                    
-                    // Update total trades count
-                    const currentTrades = parseInt(document.getElementById('pTotalTrades').textContent);
-                    document.getElementById('pTotalTrades').textContent = currentTrades + 1;
-                    
-                    // Add to demo trade history (stored in localStorage)
-                    const demoTrades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
-                    demoTrades.unshift({
-                        pair: pendingTrade.pair,
-                        action: pendingTrade.action,
-                        amount: amount.toString(),
-                        entryPrice: '0', // Would need current price
-                        blockNumber: mockBlockNumber,
-                        closed: false,
-                        pnl: 0,
-                        timestamp: Date.now()
-                    });
-                    localStorage.setItem('demoTrades', JSON.stringify(demoTrades.slice(0, 20))); // Keep last 20
-                    
-                    closeModal();
-                    loadPortfolio();
-                    loadTradeHistory(); // Reload to show new trade
-                    return;
-                }
-                
-                // REAL MODE: On-chain transaction
+                const actionMap = { 'BUY': 0, 'SELL': 1, 'HOLD': 2 };
+                const actionNum = actionMap[pendingTrade.action] || 0;
                 const amountWei = ethers.utils.parseEther(amount.toString());
 
                 const portfolio = await copyTradeContract.getPortfolio(userAddress);
@@ -2063,30 +1637,12 @@
                 showToast(`✅ Trade opened! Block #${receipt.blockNumber}`);
                 addLogEntry(`Copy trade: ${pendingTrade.action} ${pendingTrade.pair} $${amount}`);
                 
-                // Update balance (simple client-side tracking)
-                const currentBalance = parseFloat(document.getElementById('pBalance').textContent.replace(/[$,]/g, ''));
-                const newBalance = currentBalance - amount;
-                document.getElementById('pBalance').textContent = '$' + newBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
-                document.getElementById('ctBalance').textContent = '$' + newBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
-                
-                // Update total trades count
-                const currentTrades = parseInt(document.getElementById('pTotalTrades').textContent);
-                document.getElementById('pTotalTrades').textContent = currentTrades + 1;
-                
                 closeModal();
                 loadPortfolio();
                 loadOpenPositions();
             } catch (err) {
-                let msg = err.reason || err.message || 'Transaction failed';
-                
-                // Better error messages for common issues
-                if (msg.includes('Insufficient ba')) {
-                    msg = '⚠️ Testnet Demo: Contract needs funding. This is expected on testnet.';
-                } else if (msg.includes('user rejected')) {
-                    msg = 'Transaction cancelled by user';
-                }
-                
-                showToast('❌ ' + msg.slice(0, 100), true);
+                const msg = err.reason || err.message || 'Transaction failed';
+                showToast('❌ ' + msg.slice(0, 80), true);
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Confirm Trade';
@@ -2111,20 +1667,10 @@
         // PORTFOLIO
         // ═══════════════════════════════════════════════════════════════
         async function loadPortfolio() {
-            if (!userAddress) {
-                // Update trade history message
-                const historyContainer = document.getElementById('tradeHistory');
-                if (historyContainer) {
-                    historyContainer.innerHTML = '<div class="loading">Connect wallet to view trade history</div>';
-                }
-                return;
-            }
-
-            // Always load trade history regardless of portfolio data
-            loadTradeHistory();
+            if (!userAddress) return;
 
             try {
-                const res = await fetch(`${BACKEND_URL}/copytrade/portfolio/${userAddress}`);
+                const res = await fetch(`${API_URL}/copytrade/portfolio/${userAddress}`);
                 const data = await res.json();
 
                 if (!data.initialized) {
@@ -2149,6 +1695,8 @@
                 document.getElementById('pPnl').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
                 document.getElementById('pPnl').className = 'value ' + (pnl >= 0 ? '' : 'negative');
                 document.getElementById('pWinRate').textContent = winRate;
+
+                loadTradeHistory();
             } catch (err) {
                 console.error('Portfolio load error:', err);
             }
@@ -2156,18 +1704,14 @@
 
         async function loadOpenPositions() {
             if (!userAddress) return;
-            
-            const container = document.getElementById('openPositions');
-            if (!container) return; // Skip if element doesn't exist (not on Copy Trade tab)
-            
             try {
-                const res = await fetch(`${BACKEND_URL}/copytrade/trades/${userAddress}`);
+                const res = await fetch(`${API_URL}/copytrade/trades/${userAddress}`);
                 const data = await res.json();
 
+                const container = document.getElementById('openPositions');
                 const openTrades = data.openTrades || [];
 
-                const countEl = document.getElementById('ctOpenCount');
-                if (countEl) countEl.textContent = openTrades.length;
+                document.getElementById('ctOpenCount').textContent = openTrades.length;
 
                 if (openTrades.length === 0) {
                     container.innerHTML = '<div style="color:#666;font-size:12px">No open positions</div>';
@@ -2190,111 +1734,13 @@
         }
 
         async function loadTradeHistory() {
-            const container = document.getElementById('tradeHistory');
-            if (!userAddress) {
-                console.log('loadTradeHistory: No userAddress');
-                container.innerHTML = '<div class="loading">Connect wallet to view trade history</div>';
-                return;
-            }
-            
-            console.log('loadTradeHistory: Starting for', userAddress);
-            
+            if (!userAddress) return;
             try {
-                let trades = [];
-                
-                // Try to fetch from contract events first
-                if (copyTradeContract) {
-                    try {
-                        console.log('Querying contract events for:', userAddress);
-                        const filter = copyTradeContract.filters.TradeOpened(userAddress);
-                        const events = await copyTradeContract.queryFilter(filter, -5000); // Last ~5k blocks
-                        
-                        console.log('Found', events.length, 'trade events');
-                        
-                        if (events.length > 0) {
-                            trades = events.map(event => {
-                                console.log('Raw event:', event);
-                                console.log('Event args:', event.args);
-                                
-                                // TradeOpened event structure: (user, pair, action, amount, entryPrice, tradeIndex)
-                                const pair = event.args.pair || event.args[1] || 'UNKNOWN';
-                                const action = event.args.action !== undefined ? event.args.action : (event.args[2] || 0);
-                                const amount = event.args.amount || event.args[3] || '0';
-                                const entryPrice = event.args.entryPrice || event.args[4] || '0';
-                                
-                                return {
-                                    pair: pair,
-                                    action: ['BUY', 'SELL', 'HOLD'][action],
-                                    amount: ethers.utils.formatEther(amount),
-                                    entryPrice: ethers.utils.formatEther(entryPrice),
-                                    blockNumber: event.blockNumber,
-                                    closed: false,
-                                    pnl: 0
-                                };
-                            }).reverse(); // Most recent first
-                            
-                            console.log('Parsed trades:', trades);
-                        }
-                    } catch (eventErr) {
-                        console.log('Contract events not available:', eventErr.message);
-                    }
-                } else {
-                    console.log('No copyTradeContract available');
-                }
-                
-                // Fallback to backend if no events found
-                if (trades.length === 0) {
-                    console.log('Trying backend API...');
-                    try {
-                        const res = await fetch(`${BACKEND_URL}/copytrade/trades/${userAddress}`);
-                        const data = await res.json();
-                        trades = data.recentTrades || [];
-                        console.log('Backend returned', trades.length, 'trades');
-                    } catch (backendErr) {
-                        console.log('Backend API failed:', backendErr.message);
-                    }
-                }
-                
-                // Load demo trades from localStorage
-                const demoTrades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
-                if (demoTrades.length > 0) {
-                    console.log('Found', demoTrades.length, 'demo trades in localStorage');
-                    trades = [...demoTrades, ...trades]; // Demo trades first
-                }
-                
-                // If still no trades, show demo data for testnet
-                if (trades.length === 0 && RITUAL_CHAIN_ID === 1979) {
-                    console.log('No trades found, showing testnet demo data');
-                    trades = [
-                        {
-                            pair: 'BTC/USDC',
-                            action: 'BUY',
-                            amount: '500',
-                            entryPrice: '78000',
-                            blockNumber: 12345,
-                            closed: true,
-                            pnl: 5000 // 50.00% in basis points (5000 / 100 = 50%)
-                        },
-                        {
-                            pair: 'ETH/USDC',
-                            action: 'SELL',
-                            amount: '300',
-                            entryPrice: '2200',
-                            blockNumber: 12340,
-                            closed: true,
-                            pnl: -1667 // -16.67% in basis points
-                        },
-                        {
-                            pair: 'SOL/USDC',
-                            action: 'BUY',
-                            amount: '200',
-                            entryPrice: '88',
-                            blockNumber: 12335,
-                            closed: false,
-                            pnl: 0
-                        }
-                    ];
-                }
+                const res = await fetch(`${API_URL}/copytrade/trades/${userAddress}`);
+                const data = await res.json();
+
+                const container = document.getElementById('tradeHistory');
+                const trades = data.recentTrades || [];
 
                 if (trades.length === 0) {
                     container.innerHTML = '<div class="loading">No trades yet. Copy a signal to get started!</div>';
@@ -2315,46 +1761,6 @@
                 }).join('');
             } catch (err) {
                 console.error('Trade history error:', err);
-                container.innerHTML = '<div class="loading">Error loading trade history</div>';
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // SIGNAL HISTORY
-        // ═══════════════════════════════════════════════════════════════
-        async function loadSignalHistory() {
-            const container = document.getElementById('signalHistory');
-            try {
-                const res = await fetch(`${API_URL}/signals/history`);
-                const data = await res.json();
-                const signals = data.signals || [];
-
-                if (signals.length === 0) {
-                    container.innerHTML = '<div class="loading">No signal history yet</div>';
-                    return;
-                }
-
-                container.innerHTML = signals.map(s => {
-                    const outcome = s.outcome ? (s.outcome === 'correct' ? '✅' : '❌') : '⏳';
-                    const outcomeClass = s.outcome === 'correct' ? 'positive' : s.outcome === 'wrong' ? 'negative' : '';
-                    const action = s.action || s.signal; // Support both field names
-                    return `
-                        <div class="signal-card" style="margin-bottom:12px;padding:16px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                                <span style="font-size:16px;font-weight:600;color:var(--text-primary)">${s.pair}</span>
-                                <span class="${outcomeClass}" style="font-size:20px">${outcome}</span>
-                            </div>
-                            <div style="display:flex;gap:12px;font-size:13px;color:var(--text-secondary)">
-                                <span class="${action.toLowerCase()}" style="padding:4px 8px;border-radius:4px;background:${action === 'BUY' ? 'rgba(0,255,136,0.1)' : action === 'SELL' ? 'rgba(255,68,68,0.1)' : 'rgba(255,193,7,0.1)'}">${action}</span>
-                                <span>Confidence: ${s.confidence}%</span>
-                                <span>${new Date(s.timestamp).toLocaleString()}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                console.error('Signal history error:', err);
-                container.innerHTML = '<div class="loading">Failed to load signal history</div>';
             }
         }
 
@@ -2392,6 +1798,151 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
+        // SIGNAL HISTORY TAB
+        // ═══════════════════════════════════════════════════════════════
+        async function loadHistorySummary() {
+            try {
+                const res = await fetch(`${API_URL}/signals/summary`);
+                const data = await res.json();
+                
+                document.getElementById('histTotalSignals').textContent = data.totalSignals || 0;
+                
+                const acc1h = data.accuracy['1h'];
+                const acc4h = data.accuracy['4h'];
+                const acc24h = data.accuracy['24h'];
+                
+                document.getElementById('histAccuracy1h').textContent = 
+                    acc1h.accuracy !== null ? `${acc1h.accuracy.toFixed(1)}%` : '—';
+                document.getElementById('histAccuracy4h').textContent = 
+                    acc4h.accuracy !== null ? `${acc4h.accuracy.toFixed(1)}%` : '—';
+                document.getElementById('histAccuracy24h').textContent = 
+                    acc24h.accuracy !== null ? `${acc24h.accuracy.toFixed(1)}%` : '—';
+            } catch (err) {
+                console.error('Failed to load history summary:', err);
+            }
+        }
+
+        async function loadSignalHistory(direction) {
+            const pair = document.getElementById('histFilterPair').value;
+            const limit = parseInt(document.getElementById('histFilterLimit').value);
+            
+            // Handle pagination
+            if (direction === 'next') {
+                historyOffset += limit;
+            } else if (direction === 'prev') {
+                historyOffset = Math.max(0, historyOffset - limit);
+            } else {
+                historyOffset = 0; // Reset on filter change
+            }
+            
+            historyLimit = limit;
+            
+            try {
+                const params = new URLSearchParams({
+                    limit: limit,
+                    offset: historyOffset
+                });
+                if (pair) params.append('pair', pair);
+                
+                const res = await fetch(`${API_URL}/signals/history?${params}`);
+                const data = await res.json();
+                
+                historyHasMore = data.pagination.hasMore;
+                
+                // Update pagination info
+                const start = historyOffset + 1;
+                const end = Math.min(historyOffset + data.signals.length, data.pagination.total);
+                document.getElementById('histPaginationInfo').textContent = 
+                    `Showing ${start}-${end} of ${data.pagination.total}`;
+                
+                // Update pagination buttons
+                document.getElementById('histPrevBtn').disabled = historyOffset === 0;
+                document.getElementById('histNextBtn').disabled = !historyHasMore;
+                
+                // Render table
+                renderHistoryTable(data.signals);
+            } catch (err) {
+                console.error('Failed to load signal history:', err);
+                document.getElementById('historyTable').innerHTML = 
+                    '<div class="loading" style="color:var(--accent-red)">Failed to load history</div>';
+            }
+        }
+
+        function renderHistoryTable(signals) {
+            const table = document.getElementById('historyTable');
+            
+            if (signals.length === 0) {
+                table.innerHTML = '<div class="loading">No signals found</div>';
+                return;
+            }
+            
+            let html = `
+                <table style="width:100%;border-collapse:collapse;font-size:13px">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-primary);text-align:left">
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Time</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Pair</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Action</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Confidence</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Price</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">1h</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">4h</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">24h</th>
+                            <th style="padding:12px 8px;color:var(--text-secondary)">Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            signals.forEach(sig => {
+                const time = new Date(sig.timestamp).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                
+                const actionColor = sig.action === 'BUY' ? 'var(--accent-green)' : 
+                                   sig.action === 'SELL' ? 'var(--accent-red)' : 
+                                   'var(--text-secondary)';
+                
+                const price = sig.priceAtSignal ? `$${sig.priceAtSignal.toLocaleString()}` : '—';
+                
+                const outcome1h = renderOutcome(sig.correct1h, sig.priceChange1h);
+                const outcome4h = renderOutcome(sig.correct4h, sig.priceChange4h);
+                const outcome24h = renderOutcome(sig.correct24h, sig.priceChange24h);
+                
+                const source = sig.source === 'ritual-llm-onchain' ? '🔮 On-chain' : '🎲 Simulated';
+                
+                html += `
+                    <tr style="border-bottom:1px solid var(--border-secondary)">
+                        <td style="padding:10px 8px;color:var(--text-tertiary)">${time}</td>
+                        <td style="padding:10px 8px;font-weight:bold">${sig.pair}</td>
+                        <td style="padding:10px 8px;color:${actionColor};font-weight:bold">${sig.action}</td>
+                        <td style="padding:10px 8px">${sig.confidence}%</td>
+                        <td style="padding:10px 8px">${price}</td>
+                        <td style="padding:10px 8px">${outcome1h}</td>
+                        <td style="padding:10px 8px">${outcome4h}</td>
+                        <td style="padding:10px 8px">${outcome24h}</td>
+                        <td style="padding:10px 8px;font-size:11px">${source}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            table.innerHTML = html;
+        }
+
+        function renderOutcome(correct, priceChange) {
+            if (correct === null) return '<span style="color:var(--text-secondary)">⏳ Pending</span>';
+            
+            const changeStr = priceChange !== null ? `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%` : '';
+            
+            if (correct === 1) {
+                return `<span style="color:var(--accent-green)">✓ ${changeStr}</span>`;
+            } else {
+                return `<span style="color:var(--accent-red)">✗ ${changeStr}</span>`;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
         // TOAST
         // ═══════════════════════════════════════════════════════════════
         function showToast(msg, isError = false) {
@@ -2402,83 +1953,12 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // SHARE SIGNAL TO TWITTER
-        // ═══════════════════════════════════════════════════════════════
-        function shareSignal(action, pair, confidence, blockNumber) {
-            const actionEmoji = {
-                'BUY': '🟢',
-                'SELL': '🔴',
-                'HOLD': '🟡'
-            };
-            
-            const tweetText = `${actionEmoji[action] || '🤖'} Ritual Oracle Signal
-
-${action} ${pair}
-Confidence: ${confidence}%
-Source: On-chain LLM (block #${blockNumber})
-
-Powered by @ritualnet
-ritual-oracle-two.vercel.app
-
-#BuildOnRitual #DeFi`;
-
-            // Direct to Twitter with pre-filled text
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-            window.open(twitterUrl, '_blank');
-            showToast('🐦 Opening Twitter...');
-        }
-
-        // ═══════════════════════════════════════════════════════════════
         // INIT
         // ═══════════════════════════════════════════════════════════════
-        async function updateStats() {
-            try {
-                // Fetch stats
-                const statsRes = await fetch(`${API_URL}/stats`);
-                const stats = await statsRes.json();
-                
-                // Fetch summary
-                const summaryRes = await fetch(`${API_URL}/signals/summary`);
-                const summary = await summaryRes.json();
-                
-                // Update stats cards
-                document.getElementById('signalsToday').textContent = summary.totalSignals || '—';
-                document.getElementById('accuracy').textContent = summary.accuracy['1h']?.accuracy ? `${summary.accuracy['1h'].accuracy.toFixed(1)}%` : '—';
-                document.getElementById('inferenceMode').innerHTML = '<span style="color:#ffc107">●</span> Block-Seeded';
-                document.getElementById('blockNumber').textContent = stats.blockNumber ? `#${stats.blockNumber}` : '—';
-                document.getElementById('totalInferences').textContent = summary.totalSignals || '—';
-            } catch (err) {
-                console.error('Stats update error:', err);
-            }
-        }
-        
         fetchSignals();
         fetchInferenceLog();
-        updateStats();
         setInterval(fetchSignals, 5000);
         setInterval(fetchInferenceLog, 10000);
-        setInterval(updateStats, 30000); // Update stats every 30s
-
-        // Mobile fixed ticker - dynamic spacing
-        if (window.innerWidth <= 768) {
-            const ticker = document.querySelector('.market-ticker');
-            const header = document.querySelector('header');
-            if (ticker && header) {
-                // Wait for ticker to render, then adjust header spacing
-                setTimeout(() => {
-                    const tickerHeight = ticker.offsetHeight;
-                    header.style.marginTop = (tickerHeight + 10) + 'px'; // 10px buffer
-                }, 100);
-                
-                // Re-adjust on window resize
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth <= 768) {
-                        const tickerHeight = ticker.offsetHeight;
-                        header.style.marginTop = (tickerHeight + 10) + 'px';
-                    }
-                });
-            }
-        }
 
         if (window.ethereum && window.ethereum.selectedAddress) {
             connectWallet();
@@ -2492,356 +1972,10 @@ ritual-oracle-two.vercel.app
                 } else {
                     userAddress = null;
                     document.getElementById('walletStatus').innerHTML = '<span class="dot"></span><span>not connected</span>';
-                    const connectBtn = document.getElementById('connectBtn');
-                    connectBtn.textContent = 'Connect Wallet';
-                    connectBtn.onclick = connectWallet;
+                    document.getElementById('connectBtn').textContent = 'Connect Wallet';
                 }
             });
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // WALLET DROPDOWN (inline)
-        // ═══════════════════════════════════════════════════════════════
-        function showWalletModal() {
-            if (!userAddress) return;
-            const dropdown = document.getElementById('walletDropdown');
-            document.getElementById('walletDropdownAddr').textContent = userAddress;
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function closeWalletModal() {
-            document.getElementById('walletDropdown').style.display = 'none';
-        }
-
-        function disconnectWallet() {
-            userAddress = null;
-            provider = null;
-            signer = null;
-            document.getElementById('walletStatus').innerHTML = '<span class="dot"></span><span>not connected</span>';
-            
-            const connectBtn = document.getElementById('connectBtn');
-            connectBtn.textContent = 'Connect Wallet';
-            connectBtn.onclick = connectWallet;
-            
-            closeWalletModal();
-            showToast('Wallet disconnected');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('walletDropdown');
-            const connectBtn = document.getElementById('connectBtn');
-            if (dropdown && !dropdown.contains(e.target) && e.target !== connectBtn) {
-                dropdown.style.display = 'none';
-            }
-        });
-    </script>
-
-    <!-- Footer -->
-    <footer style="margin-top:40px;padding:24px 32px;border-top:1px solid var(--border-primary);background:var(--bg-secondary);position:relative">
-        <div style="display:flex;justify-content:center;align-items:center;gap:32px;flex-wrap:wrap">
-            <a href="https://docs.ritualfoundation.org/" target="_blank" style="color:var(--accent-green);text-decoration:none;font-size:13px;font-family:'Courier New',monospace;transition:opacity 0.2s;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">📄 Docs</a>
-            <a href="https://rpc.ritualfoundation.org/" target="_blank" style="color:var(--accent-green);text-decoration:none;font-size:13px;font-family:'Courier New',monospace;transition:opacity 0.2s;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">⚡ RPC</a>
-            <a href="https://faucet.ritualfoundation.org/" target="_blank" style="color:var(--accent-green);text-decoration:none;font-size:13px;font-family:'Courier New',monospace;transition:opacity 0.2s;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">🚰 Faucet</a>
-            <a href="https://skills.ritualfoundation.org/" target="_blank" style="color:var(--accent-green);text-decoration:none;font-size:13px;font-family:'Courier New',monospace;transition:opacity 0.2s;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">🎯 Skills</a>
-        </div>
-        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-secondary);font-family:'Courier New',monospace">
-            © 2026 Ritual Oracle • Powered by Ritual Chain (ID: 1979) • On-Chain AI Inference
-        </div>
-    </footer>
-
-    <!-- Gas Tracker Widget -->
-    <div id="gasTracker" style="position:fixed;bottom:24px;left:24px;background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:12px;padding:12px 16px;display:block;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);backdrop-filter:blur(10px);min-width:180px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <span style="font-size:20px">⛽</span>
-            <span style="color:var(--text-white);font-size:13px;font-weight:bold">Gas Balance</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <span id="gasBalance" style="color:var(--accent-green);font-size:18px;font-weight:bold;font-family:'Courier New',monospace">—</span>
-            <span style="color:var(--text-secondary);font-size:11px">RITUAL</span>
-        </div>
-        <div id="gasWarning" style="display:none;margin-top:8px;padding:6px 10px;background:rgba(255,166,0,0.1);border:1px solid var(--accent-orange);border-radius:6px;font-size:10px;color:var(--accent-orange)">
-            ⚠️ Low balance! <a href="https://faucet.ritualfoundation.org/" target="_blank" style="color:var(--accent-orange);text-decoration:underline">Get testnet tokens</a>
-        </div>
-    </div>
-
-    <!-- Floating Feedback Button -->
-    <div id="feedbackBtn" onclick="toggleFeedback()" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,255,136,0.3);transition:transform 0.2s,box-shadow 0.2s;z-index:9999" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 30px rgba(0,255,136,0.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,255,136,0.3)'">
-        <span style="font-size:24px">💬</span>
-    </div>
-
-    <!-- Feedback Panel -->
-    <div id="feedbackPanel" style="position:fixed;bottom:90px;right:24px;width:320px;background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:12px;padding:20px;display:none;z-index:9999;box-shadow:0 8px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <span style="color:var(--text-white);font-size:14px;font-family:'Courier New',monospace;font-weight:bold">💬 Feedback</span>
-            <span onclick="toggleFeedback()" style="color:var(--text-secondary);cursor:pointer;font-size:18px">✕</span>
-        </div>
-        <textarea id="feedbackText" placeholder="Share your thoughts, suggestions, or report bugs..." style="width:100%;height:100px;background:var(--bg-tertiary);border:1px solid var(--border-secondary);border-radius:8px;padding:12px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;resize:none" ></textarea>
-        <button onclick="submitFeedback()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));border:none;border-radius:8px;color:#000;font-weight:bold;font-size:13px;font-family:'Courier New',monospace;cursor:pointer;transition:opacity 0.2s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Send Feedback 🚀</button>
-        <div id="feedbackSuccess" style="display:none;margin-top:12px;padding:12px;background:rgba(0,255,136,0.1);border:1px solid var(--accent-green);border-radius:8px;text-align:center;color:var(--accent-green);font-size:12px">✅ Thank you for your feedback!</div>
-    </div>
-
-    <script>
-        function toggleFeedback() {
-            const panel = document.getElementById('feedbackPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        function submitFeedback() {
-            const text = document.getElementById('feedbackText').value.trim();
-            if (!text) return;
-            
-            // Send to backend (Telegram via @critomeongmes_bot)
-            fetch('/api/feedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            }).catch(err => console.error('Feedback send error:', err));
-            
-            // Show success message
-            document.getElementById('feedbackSuccess').style.display = 'block';
-            document.getElementById('feedbackText').value = '';
-            
-            // Hide success after 3s
-            setTimeout(() => {
-                document.getElementById('feedbackSuccess').style.display = 'none';
-                toggleFeedback();
-            }, 3000);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // PERFORMANCE DASHBOARD
-        // ═══════════════════════════════════════════════════════════════
-        let performanceCharts = {
-            accuracy: null,
-            winRate: null,
-            roi: null
-        };
-
-        async function loadPerformanceDashboard() {
-            try {
-                const response = await fetch('/api/stats-dashboard?days=7&timeframe=1h');
-                const data = await response.json();
-                
-                // Update overview cards
-                document.getElementById('perf-accuracy').textContent = data.overview.accuracy.toFixed(1) + '%';
-                document.getElementById('perf-total-signals').textContent = data.overview.totalSignals;
-                document.getElementById('perf-win-rate').textContent = data.overview.winRate;
-                document.getElementById('perf-roi').textContent = '+' + data.overview.simulatedROI + '%';
-                document.getElementById('perf-roi-usd').textContent = '$' + (data.overview.simulatedROI * 10).toFixed(0) + ' per $1000';
-                document.getElementById('perf-confidence').textContent = data.overview.avgConfidence + '%';
-                document.getElementById('perf-inferences').textContent = data.overview.totalInferences.toLocaleString();
-                
-                // Initialize charts
-                initPerformanceCharts(data.charts);
-                
-                // Populate performance table
-                populatePerformanceTable(data.detailedPerformance);
-                
-            } catch (err) {
-                console.error('Failed to load performance dashboard:', err);
-                document.getElementById('perf-accuracy').textContent = 'Error';
-            }
-        }
-
-        function initPerformanceCharts(chartData) {
-            const chartColors = {
-                green: '#00ff88',
-                cyan: '#00ccff',
-                red: '#ff4444',
-                orange: '#ffa600',
-                gridColor: 'rgba(0,255,136,0.1)',
-                textColor: '#666'
-            };
-
-            const chartDefaults = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: chartColors.textColor,
-                            font: { family: "'Courier New', monospace" }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: chartColors.gridColor },
-                        ticks: { color: chartColors.textColor }
-                    },
-                    y: {
-                        grid: { color: chartColors.gridColor },
-                        ticks: { color: chartColors.textColor }
-                    }
-                }
-            };
-
-            // Accuracy Over Time Chart
-            const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
-            if (performanceCharts.accuracy) performanceCharts.accuracy.destroy();
-            performanceCharts.accuracy = new Chart(accuracyCtx, {
-                type: 'line',
-                data: {
-                    labels: chartData.accuracyTimeseries.map(d => d.date),
-                    datasets: [{
-                        label: 'Accuracy %',
-                        data: chartData.accuracyTimeseries.map(d => d.accuracy),
-                        borderColor: chartColors.green,
-                        backgroundColor: 'rgba(0,255,136,0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: chartColors.green,
-                        pointBorderColor: chartColors.green,
-                        pointHoverRadius: 6,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    ...chartDefaults,
-                    plugins: {
-                        ...chartDefaults.plugins,
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `Accuracy: ${context.parsed.y}%`
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartDefaults.scales,
-                        y: {
-                            ...chartDefaults.scales.y,
-                            ticks: {
-                                ...chartDefaults.scales.y.ticks,
-                                callback: (value) => value + '%'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Win Rate by Coin Chart
-            const winRateCtx = document.getElementById('winRateChart').getContext('2d');
-            if (performanceCharts.winRate) performanceCharts.winRate.destroy();
-            performanceCharts.winRate = new Chart(winRateCtx, {
-                type: 'bar',
-                data: {
-                    labels: chartData.winRateByCoin.map(d => d.coin),
-                    datasets: [{
-                        label: 'Win Rate %',
-                        data: chartData.winRateByCoin.map(d => d.winRate),
-                        backgroundColor: chartData.winRateByCoin.map((d, i) => 
-                            i % 2 === 0 ? 'rgba(0,255,136,0.6)' : 'rgba(0,204,255,0.6)'
-                        ),
-                        borderColor: chartData.winRateByCoin.map((d, i) => 
-                            i % 2 === 0 ? chartColors.green : chartColors.cyan
-                        ),
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    ...chartDefaults,
-                    scales: {
-                        ...chartDefaults.scales,
-                        y: {
-                            ...chartDefaults.scales.y,
-                            ticks: {
-                                ...chartDefaults.scales.y.ticks,
-                                callback: (value) => value + '%'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // ROI Simulation Chart
-            const roiCtx = document.getElementById('roiChart').getContext('2d');
-            if (performanceCharts.roi) performanceCharts.roi.destroy();
-            performanceCharts.roi = new Chart(roiCtx, {
-                type: 'line',
-                data: {
-                    labels: chartData.roiTimeseries.map(d => d.date),
-                    datasets: [{
-                        label: 'Portfolio Value ($1000 start)',
-                        data: chartData.roiTimeseries.map(d => d.portfolioValue),
-                        borderColor: chartColors.green,
-                        backgroundColor: 'rgba(0,255,136,0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: chartColors.green,
-                        pointBorderColor: chartColors.green,
-                        pointHoverRadius: 6,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    ...chartDefaults,
-                    plugins: {
-                        ...chartDefaults.plugins,
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `Value: $${context.parsed.y.toFixed(2)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartDefaults.scales,
-                        y: {
-                            ...chartDefaults.scales.y,
-                            ticks: {
-                                ...chartDefaults.scales.y.ticks,
-                                callback: (value) => '$' + value
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function populatePerformanceTable(data) {
-            const tbody = document.getElementById('performanceTableBody');
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--text-secondary)">No data available</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = data.map(row => {
-                const accuracyClass = row.accuracy >= 80 ? 'high' : row.accuracy >= 60 ? 'medium' : 'low';
-                const roiColor = parseFloat(row.simulatedROI) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-                
-                return `
-                    <tr style="border-bottom:1px solid var(--border-secondary)">
-                        <td style="padding:12px;font-size:13px">
-                            <div style="display:flex;align-items:center;gap:8px">
-                                <span style="font-size:18px">${getCoinIcon(row.coin)}</span>
-                                <span>${row.coin}</span>
-                            </div>
-                        </td>
-                        <td style="padding:12px;font-size:13px">${row.totalSignals}</td>
-                        <td style="padding:12px;font-size:13px">${row.winRate}</td>
-                        <td style="padding:12px;font-size:13px">
-                            <span class="accuracy-badge ${accuracyClass}" style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:bold">
-                                ${row.accuracy}%
-                            </span>
-                        </td>
-                        <td style="padding:12px;font-size:13px">${row.avgConfidence}%</td>
-                        <td style="padding:12px;font-size:13px;color:${roiColor};font-weight:600">
-                            ${parseFloat(row.simulatedROI) >= 0 ? '+' : ''}${row.simulatedROI}%
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function getCoinIcon(pair) {
-            if (pair.includes('BTC')) return '₿';
-            if (pair.includes('ETH')) return 'Ξ';
-            if (pair.includes('SOL')) return '◎';
-            if (pair.includes('AVAX')) return '🔺';
-            return '💰';
         }
     </script>
 </body>
 </html>
-<!-- Deploy: 1778066697 -->

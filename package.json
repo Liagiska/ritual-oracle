@@ -1,0 +1,12 @@
+{
+  "name": "ritual-oracle",
+  "version": "2.0.0",
+  "description": "Ritual Oracle - On-chain AI Trading Assistant",
+  "type": "module",
+  "dependencies": {
+    "ethers": "^6.11.1"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}

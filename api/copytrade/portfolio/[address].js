@@ -4,11 +4,12 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   
+  const { address } = req.query;
   try {
-    const response = await fetch('http://159.223.221.130:3000/api/inference/log');
+    const response = await fetch(`http://159.223.221.130:3000/api/copytrade/portfolio/${address}`);
     const data = await response.json();
     res.status(200).json(data);
   } catch (error) {
-    res.status(502).json({ logs: [] });
+    res.status(502).json({ error: 'Backend unreachable' });
   }
 }
