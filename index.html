@@ -1703,6 +1703,10 @@
                         setTimeout(waitForChart, 200);
                     }, 100);
                 }
+                // Fetch signals first, then render
+                if (!currentSignals || currentSignals.length === 0) {
+                    await fetchSignals();
+                }
                 renderCopySignals();
             }
             if (tab === 'portfolio') loadPortfolio();
