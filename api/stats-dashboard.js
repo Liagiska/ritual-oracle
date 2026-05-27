@@ -1,9 +1,9 @@
 // Vercel serverless function - Performance Dashboard Stats
-const axios = require('axios');
+import axios from 'axios';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://72.62.133.122:3001';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -62,4 +62,4 @@ module.exports = async (req, res) => {
             ]
         });
     }
-};
+}
