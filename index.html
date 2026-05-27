@@ -1703,9 +1703,9 @@
                         setTimeout(waitForChart, 200);
                     }, 100);
                 }
-                // Fetch signals first, then render
+                // Fetch signals in background, then render
                 if (!currentSignals || currentSignals.length === 0) {
-                    await fetchSignals();
+                    fetchSignals().catch(err => console.error('Failed to fetch signals:', err));
                 }
                 renderCopySignals();
             }
