@@ -19,10 +19,13 @@
             --text-white: #fff;
             --border-primary: rgba(0,255,136,0.15);
             --border-secondary: rgba(0,255,136,0.1);
-            --accent-green: #00ff88;
-            --accent-cyan: #00ccff;
-            --accent-red: #ff4444;
-            --accent-orange: #ffa600;
+            --accent-green: #00cc88;
+            --accent-cyan: #00b8cc;
+            --accent-red: #ff5555;
+            --accent-orange: #cc9900;
+            --accent-purple: #8b8ba0;
+            --accent-blue: #6699bb;
+            --accent-tag: #7a8a9a;
             --modal-overlay: rgba(0,0,0,0.85);
             --gradient-mesh-opacity: 0.15;
             --particle-opacity: 1;
@@ -38,10 +41,13 @@
             --text-white: #1a1a1a;
             --border-primary: rgba(0,180,100,0.3);
             --border-secondary: rgba(0,180,100,0.2);
-            --accent-green: #00b464;
-            --accent-cyan: #0099cc;
-            --accent-red: #d63031;
-            --accent-orange: #e67e22;
+            --accent-green: #00a878;
+            --accent-cyan: #008899;
+            --accent-red: #cc3838;
+            --accent-orange: #b38600;
+            --accent-purple: #7a7a90;
+            --accent-blue: #5588aa;
+            --accent-tag: #6e7e8e;
             --modal-overlay: rgba(255,255,255,0.95);
             --gradient-mesh-opacity: 0.08;
             --particle-opacity: 0.3;
@@ -560,10 +566,10 @@
     opacity: 0;
     transition: opacity 0.3s;
 }
-.precompile-card.sync::before { background: var(--accent-cyan); }
-.precompile-card.short-async::before { background: var(--accent-green); }
-.precompile-card.long-async::before { background: var(--accent-orange); }
-.precompile-card.cross-cutting::before { background: #c084fc; }
+.precompile-card.sync::before { background: var(--accent-tag); }
+.precompile-card.short-async::before { background: var(--accent-tag); }
+.precompile-card.long-async::before { background: var(--accent-tag); }
+.precompile-card.cross-cutting::before { background: var(--accent-tag); }
 
 .precompile-card:hover {
     transform: translateY(-3px);
@@ -615,10 +621,10 @@
     font-size: 10px;
     font-weight: 600;
 }
-.tag-sync { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
-.tag-short { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
-.tag-long { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
-.tag-cross { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.2); }
+.tag-sync { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.tag-short { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.tag-long { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.tag-cross { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
 
 /* ═══ SKILLS GRID ═══ */
 .skills-grid {
@@ -656,11 +662,11 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-.cat-meta { background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
-.cat-precompile { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
-.cat-contract { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
-.cat-fullstack { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
-.cat-reference { background: rgba(100,200,255,0.12); color: #64c8ff; border: 1px solid rgba(100,200,255,0.2); }
+.cat-meta { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.cat-precompile { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.cat-contract { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.cat-fullstack { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
+.cat-reference { background: rgba(122,138,154,0.08); color: var(--accent-tag); border: 1px solid rgba(122,138,154,0.14); }
 
 .skill-name {
     font-size: 14px;
