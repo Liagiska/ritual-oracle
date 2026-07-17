@@ -1,0 +1,137 @@
+/* ═══ PRECOMPILE GRID ═══ */
+.precompile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+.precompile-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    overflow: hidden;
+}
+.precompile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.precompile-card.sync::before { background: var(--accent-cyan); }
+.precompile-card.short-async::before { background: var(--accent-green); }
+.precompile-card.long-async::before { background: var(--accent-orange); }
+.precompile-card.cross-cutting::before { background: #c084fc; }
+
+.precompile-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0,255,136,0.3);
+    box-shadow: 0 8px 30px rgba(0,255,136,0.08);
+}
+.precompile-card:hover::before { opacity: 1; }
+
+.precompile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.precompile-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,255,136,0.08);
+    border-radius: 8px;
+}
+.precompile-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-white);
+}
+.precompile-address {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+}
+.precompile-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.precompile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.precompile-tag {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+.tag-sync { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
+.tag-short { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+.tag-long { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
+.tag-cross { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.2); }
+
+/* ═══ SKILLS GRID ═══ */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+}
+.skill-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    cursor: default;
+}
+.skill-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0,255,136,0.3);
+    box-shadow: 0 6px 24px rgba(0,255,136,0.06);
+}
+.skill-card.hidden { display: none; }
+
+.skill-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.skill-category-badge {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cat-meta { background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
+.cat-precompile { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+.cat-contract { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
+.cat-fullstack { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
+.cat-reference { background: rgba(100,200,255,0.12); color: #64c8ff; border: 1px solid rgba(100,200,255,0.2); }
+
+.skill-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-white);
+    font-family: 'Courier New', monospace;
+}
+.skill-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 6px;
+}

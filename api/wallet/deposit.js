@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   
   try {
-    const response = await fetch('http://159.223.221.130:3000/api/wallet/deposit', {
+    const response = await fetch('http://72.62.133.122:3001/api/wallet/deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body),

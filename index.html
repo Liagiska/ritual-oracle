@@ -87,6 +87,7 @@
         .badge{padding:6px 12px;background:rgba(0,255,136,0.1);border:1px solid var(--accent-green);border-radius:4px;font-size:12px;color:var(--accent-green);position:relative;overflow:hidden}
         .badge::before{content:'●';margin-right:6px;animation:dotBreathe 2s ease-in-out infinite;display:inline-block}
         @keyframes dotBreathe{0%,100%{opacity:1;text-shadow:0 0 4px var(--accent-green)}50%{opacity:0.4;text-shadow:0 0 12px var(--accent-green)}}
+        @keyframes pulse{0%,100%{opacity:0.4;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
 
         /* ═══ BUTTONS ═══ */
         .btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,var(--accent-green) 0%,var(--accent-cyan) 100%);color:#000;font-weight:600;font-size:13px;transition:all 0.3s;position:relative;overflow:hidden}
@@ -536,6 +537,162 @@
             .chart-timeframe-controls{gap:4px}
             .timeframe-btn{padding:5px 10px;font-size:10px}
         }
+/* ═══ PRECOMPILE GRID ═══ */
+.precompile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+.precompile-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    overflow: hidden;
+}
+.precompile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.precompile-card.sync::before { background: var(--accent-cyan); }
+.precompile-card.short-async::before { background: var(--accent-green); }
+.precompile-card.long-async::before { background: var(--accent-orange); }
+.precompile-card.cross-cutting::before { background: #c084fc; }
+
+.precompile-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0,255,136,0.3);
+    box-shadow: 0 8px 30px rgba(0,255,136,0.08);
+}
+.precompile-card:hover::before { opacity: 1; }
+
+.precompile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.precompile-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,255,136,0.08);
+    border-radius: 8px;
+}
+.precompile-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-white);
+}
+.precompile-address {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+}
+.precompile-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.precompile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.precompile-tag {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+.tag-sync { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
+.tag-short { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+.tag-long { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
+.tag-cross { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.2); }
+
+/* ═══ SKILLS GRID ═══ */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+}
+.skill-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    cursor: default;
+}
+.skill-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0,255,136,0.3);
+    box-shadow: 0 6px 24px rgba(0,255,136,0.06);
+}
+.skill-card.hidden { display: none; }
+
+.skill-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.skill-category-badge {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cat-meta { background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
+.cat-precompile { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+.cat-contract { background: rgba(0,204,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,204,255,0.2); }
+.cat-fullstack { background: rgba(255,166,0,0.12); color: var(--accent-orange); border: 1px solid rgba(255,166,0,0.2); }
+.cat-reference { background: rgba(100,200,255,0.12); color: #64c8ff; border: 1px solid rgba(100,200,255,0.2); }
+
+.skill-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-white);
+    font-family: 'Courier New', monospace;
+}
+.skill-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 6px;
+}
+
+/* ═══ AGENTS TAB ═══ */
+.info-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s;
+}
+.info-card:hover {
+    border-color: rgba(0,255,136,0.25);
+}
+.badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid;
+}
     </style>
 </head>
 <body>
@@ -617,6 +774,9 @@
             <div class="tab" onclick="switchTab('portfolio')"><span class="tab-icon">💼</span>Portfolio</div>
             <div class="tab" onclick="switchTab('history')"><span class="tab-icon">📊</span>History</div>
             <div class="tab" onclick="switchTab('performance')"><span class="tab-icon">📈</span>Performance</div>
+            <div class="tab" onclick="switchTab('precompiles')"><span class="tab-icon">🔧</span>Precompiles</div>
+            <div class="tab" onclick="switchTab('agents')"><span class="tab-icon">🤖</span>Agents</div>
+            <div class="tab" onclick="switchTab('skills')"><span class="tab-icon">📚</span>Skills</div>
         </div>
 
         <!-- ═══════════════════════════════════════════ -->
@@ -2541,6 +2701,179 @@ ritual-oracle-two.vercel.app
         });
     </script>
 
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: PRECOMPILES -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-precompiles">
+        <div class="precompile-intro">
+            <h2 style="color:var(--accent-cyan);font-size:18px;margin-bottom:8px">16 On-Chain Precompiles</h2>
+            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:24px">Smart contracts with native off-chain capabilities — HTTP, LLM inference, multimodal AI, and more. All running on Ritual Chain.</p>
+            <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+                <div class="stat-card" style="flex:1;min-width:140px">
+                    <div class="stat-label">Sync Precompiles</div>
+                    <div class="stat-value" style="font-size:22px;color:var(--accent-cyan)">4</div>
+                </div>
+                <div class="stat-card" style="flex:1;min-width:140px">
+                    <div class="stat-label">Short Async</div>
+                    <div class="stat-value" style="font-size:22px;color:var(--accent-green)">2</div>
+                </div>
+                <div class="stat-card" style="flex:1;min-width:140px">
+                    <div class="stat-label">Long Async</div>
+                    <div class="stat-value" style="font-size:22px;color:var(--accent-orange)">7</div>
+                </div>
+                <div class="stat-card" style="flex:1;min-width:140px">
+                    <div class="stat-label">Cross-Cutting</div>
+                    <div class="stat-value" style="font-size:22px;color:#c084fc">3</div>
+                </div>
+            </div>
+        </div>
+        <div class="precompile-grid" id="precompileGrid">
+            <!-- Generated by JS -->
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: AGENTS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-agents">
+        <h2 style="color:var(--accent-cyan);font-size:18px;margin-bottom:8px">Sovereign & Persistent Agents <span class="live-indicator" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#666;margin-left:8px;vertical-align:middle"></span></h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:24px">Long-running AI agents on Ritual Chain. Autonomous, verifiable, and fully on-chain.</p>
+
+        <div class="stats-grid" id="agentStats" style="margin-bottom:24px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+            <div class="stat-card">
+                <div class="stat-label">Chain</div>
+                <div class="stat-value" style="font-size:15px" id="agentChainId">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Block Height</div>
+                <div class="stat-value" style="font-size:15px" id="agentBlockNum">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Gas Price</div>
+                <div class="stat-value" style="font-size:15px" id="agentGasPrice">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Wallet Balance</div>
+                <div class="stat-value" style="font-size:15px" id="agentWalletBal">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Wallet Contract</div>
+                <div class="stat-value" style="font-size:12px;font-family:monospace" id="agentWalletCode">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sovereign Precompile</div>
+                <div class="stat-value" style="font-size:13px" id="agentSovStatus">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Persistent Precompile</div>
+                <div class="stat-value" style="font-size:13px" id="agentPerStatus">Loading...</div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+            <!-- Sovereign Agent -->
+            <div class="info-card" style="border-color:rgba(192,132,252,0.3)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+                    <span style="font-size:28px">👑</span>
+                    <div>
+                        <h3 style="color:#c084fc;font-size:16px;margin:0">Sovereign Agent</h3>
+                        <code style="color:var(--text-secondary);font-size:11px">0x080C</code>
+                    </div>
+                </div>
+                <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin-bottom:16px">
+                    Fully autonomous agent with its own wallet, identity, and execution schedule. Deploys independently and runs perpetually on-chain via the Scheduler. Can own assets, make decisions, and interact with other contracts — no human babysitting required.
+                </p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+                    <span class="badge" style="border-color:#c084fc;color:#c084fc;background:rgba(192,132,252,0.1)">Long Async (Callback)</span>
+                    <span class="badge" style="border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,204,255,0.1)">Scheduler-Controlled</span>
+                    <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Own Wallet</span>
+                </div>
+                <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/sovereign-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
+            </div>
+
+            <!-- Persistent Agent -->
+            <div class="info-card" style="border-color:rgba(0,204,255,0.3)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+                    <span style="font-size:28px">🔄</span>
+                    <div>
+                        <h3 style="color:var(--accent-cyan);font-size:16px;margin:0">Persistent Agent</h3>
+                        <code style="color:var(--text-secondary);font-size:11px">0x0820</code>
+                    </div>
+                </div>
+                <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin-bottom:16px">
+                    Stateful agent that maintains context across multiple interactions. Remembers conversation history, learns from past executions, and builds up knowledge over time. Perfect for chatbots, assistants, and any agent that needs persistent memory.
+                </p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+                    <span class="badge" style="border-color:var(--accent-orange);color:var(--accent-orange);background:rgba(255,166,0,0.1)">Long Async (Callback)</span>
+                    <span class="badge" style="border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,204,255,0.1)">Stateful Memory</span>
+                    <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Multi-Session</span>
+                </div>
+                <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/persistent-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
+            </div>
+        </div>
+
+        <!-- Build Pipeline -->
+        <div class="info-card">
+            <h3 style="color:var(--accent-cyan);font-size:14px;margin-bottom:16px">⚡ Agent Build Pipeline</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px">
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">🎯</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Projection</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">🏗️</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Architecture</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">📜</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Contracts</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">🎨</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Frontend</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">⚙️</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Backend</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">🧪</div>
+                    <div style="font-size:11px;color:var(--accent-green)">Testing</div>
+                </div>
+                <div style="text-align:center;padding:12px;background:var(--bg-tertiary);border-radius:8px">
+                    <div style="font-size:20px;margin-bottom:4px">🚀</div>
+                    <div style="font-size:11px;color:var(--accent-cyan)">Deploy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: SKILLS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-skills">
+        <h2 style="color:var(--accent-cyan);font-size:18px;margin-bottom:8px">32+ Developer Skills</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:4px">Complete toolkit for building dApps on Ritual Chain. From precompile ABIs to full-stack patterns, these skills teach AI coding assistants how to build.</p>
+        <p id="skillsRepoStats" style="color:var(--text-tertiary);font-size:12px;margin-bottom:20px">Loading repo stats...</p>
+
+        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+            <input type="text" id="skillSearch" placeholder="🔍 Search skills..." style="padding:10px 16px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:8px;color:var(--text-primary);font-size:13px;flex:1;min-width:200px;font-family:'Courier New',monospace" oninput="filterSkills()">
+            <select id="skillFilter" onchange="filterSkills()" style="padding:10px 16px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;cursor:pointer">
+                <option value="all">All Categories</option>
+                <option value="meta">Ω Meta Protocols</option>
+                <option value="precompile">α Precompile Features</option>
+                <option value="contract">α Smart Contracts</option>
+                <option value="fullstack">α Full-Stack</option>
+                <option value="reference">Ω Architecture & Reference</option>
+            </select>
+        </div>
+
+        <div class="skills-grid" id="skillsGrid">
+            <!-- Generated by JS -->
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer style="margin-top:40px;padding:24px 32px;border-top:1px solid var(--border-primary);background:var(--bg-secondary);position:relative">
         <div style="display:flex;justify-content:center;align-items:center;gap:32px;flex-wrap:wrap">
@@ -2845,6 +3178,277 @@ ritual-oracle-two.vercel.app
             if (pair.includes('AVAX')) return '🔺';
             return '💰';
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // NEW TABS: PRECOMPILES + AGENTS + SKILLS
+        // ═══════════════════════════════════════════════════════════════
+
+        // --- PRECOMPILES DATA ---
+        const PRECOMPILES = [
+            { name:'LLM Inference', addr:'0x0802', model:'sync', icon:'🧠', desc:'Run LLM inference directly from smart contracts. Query GPT, Claude, and open models on-chain.', tags:['LLM','Inference','Chat Completion'] },
+            { name:'HTTP', addr:'0x0801', model:'short-async', icon:'🌐', desc:'Make HTTP requests from smart contracts. Fetch API data, query external services, bridge web2 to web3.', tags:['HTTP','REST','Webhook'] },
+            { name:'Long HTTP', addr:'0x0810', model:'long-async', icon:'⏳', desc:'Extended HTTP requests with callback. For long-running external API calls that exceed block time.', tags:['HTTP','Callback','Long-running'] },
+            { name:'Multimodal Image', addr:'0x0824', model:'long-async', icon:'🖼️', desc:'Process images with AI models. Vision analysis, image generation, object detection on-chain.', tags:['Vision','Image','Multimodal'] },
+            { name:'Multimodal Audio', addr:'0x0834', model:'long-async', icon:'🎵', desc:'Audio processing precompile. Speech-to-text, audio generation, sound classification.', tags:['Audio','Speech','TTS'] },
+            { name:'Multimodal Video', addr:'0x0844', model:'long-async', icon:'🎬', desc:'Video analysis precompile. Frame extraction, action recognition, video understanding.', tags:['Video','Vision','Analysis'] },
+            { name:'Agents - Persistent', addr:'0x0820', model:'long-async', icon:'🔄', desc:'Stateful AI agents with persistent memory across sessions. Remembers context and learns over time.', tags:['Agent','Memory','Stateful'] },
+            { name:'Agents - Sovereign', addr:'0x080C', model:'long-async', icon:'👑', desc:'Fully autonomous agents with their own wallet. Self-scheduled execution, independent decision-making.', tags:['Agent','Autonomous','Wallet'] },
+            { name:'ONX Token', addr:'0x0900', model:'sync', icon:'💎', desc:'Native token operations. Transfer, approve, and query ONX balances directly from contracts.', tags:['Token','Transfer','Balance'] },
+            { name:'Ed25519', addr:'0x0910', model:'sync', icon:'🔐', desc:'Ed25519 signature verification on-chain. Verify off-chain signatures for authentication and proofs.', tags:['Crypto','Signature','Verification'] },
+            { name:'Scheduler', addr:'0x0920', model:'cross-cutting', icon:'⏰', desc:'Schedule contract execution. Timed triggers, recurring jobs, and deferred actions for autonomous agents.', tags:['Scheduler','Cron','Automation'] },
+            { name:'Secrets', addr:'0x0930', model:'sync', icon:'🔒', desc:'Encrypted secret storage for smart contracts. Store API keys, credentials, and sensitive data on-chain.', tags:['Secrets','Encryption','Storage'] },
+            { name:'X402', addr:'0x0940', model:'short-async', icon:'💳', desc:'Payment protocol precompile. Accept crypto payments, handle invoices, and manage subscriptions.', tags:['Payment','Invoice','Billing'] },
+            { name:'Passkey', addr:'0x0950', model:'sync', icon:'🔑', desc:'WebAuthn passkey verification. Authenticate users with biometrics and hardware keys.', tags:['Auth','Passkey','WebAuthn'] },
+            { name:'Passkey Sign', addr:'0x0960', model:'sync', icon:'✍️', desc:'Sign transactions with passkeys. Secure transaction signing using WebAuthn credentials.', tags:['Auth','Signing','WebAuthn'] },
+            { name:'Passkey Recovery', addr:'0x0970', model:'cross-cutting', icon:'🔄', desc:'Account recovery via passkeys. Social recovery and key rotation for sovereign agents.', tags:['Recovery','Passkey','Security'] }
+        ];
+
+        // --- PRECOMPILES: LIVE RENDERING WITH ON-CHAIN DATA ---
+        const RPC_URL = 'https://rpc.ritualfoundation.org';
+        
+        async function renderPrecompiles() {
+            const grid = document.getElementById('precompileGrid');
+            if (!grid) return;
+            
+            // Show loading skeleton
+            grid.innerHTML = PRECOMPILES.map(pc => `
+                <div class="precompile-card ${pc.model}" id="pc-${pc.addr}">
+                    <div class="precompile-header">
+                        <div class="precompile-icon">${pc.icon}</div>
+                        <div>
+                            <div class="precompile-name">${pc.name}</div>
+                            <div class="precompile-address">${pc.addr}</div>
+                        </div>
+                    </div>
+                    <div class="precompile-desc">${pc.desc}</div>
+                    <div class="precompile-tags">
+                        ${pc.tags.map(t => {
+                            let cls = pc.model === 'sync' ? 'tag-sync' : pc.model === 'short-async' ? 'tag-short' : pc.model === 'long-async' ? 'tag-long' : 'tag-cross';
+                            return `<span class="precompile-tag ${cls}">${t}</span>`;
+                        }).join('')}
+                    </div>
+                    <div class="precompile-live" id="live-${pc.addr}" style="margin-top:12px;padding:8px 12px;background:var(--bg-tertiary);border-radius:6px;font-size:11px;font-family:'Courier New',monospace;display:flex;align-items:center;gap:8px">
+                        <span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:#666;display:inline-block;animation:pulse 1.5s infinite"></span>
+                        <span style="color:var(--text-secondary)">Fetching...</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Fetch on-chain data — chain info + block
+            try {
+                const resp = await fetch(RPC_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify([
+                        { jsonrpc: '2.0', method: 'eth_chainId', params: [], id: 1 },
+                        { jsonrpc: '2.0', method: 'eth_blockNumber', params: [], id: 2 },
+                        { jsonrpc: '2.0', method: 'eth_gasPrice', params: [], id: 3 }
+                    ])
+                });
+                const data = await resp.json();
+                
+                let chainId = '—', blockNum = '—', gasPrice = '—';
+                if (Array.isArray(data)) {
+                    data.forEach(r => {
+                        if (r.id === 1) chainId = parseInt(r.result, 16);
+                        if (r.id === 2) blockNum = parseInt(r.result, 16).toLocaleString();
+                        if (r.id === 3) gasPrice = (parseInt(r.result, 16) / 1e9).toFixed(2) + ' gwei';
+                    });
+                }
+                
+                const isRitual = chainId === 1979;
+                
+                // Update all cards with chain context
+                PRECOMPILES.forEach(pc => {
+                    const el = document.getElementById('live-' + pc.addr);
+                    if (!el) return;
+                    if (isRitual) {
+                        el.innerHTML = `<span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent-green);display:inline-block;box-shadow:0 0 8px rgba(0,255,136,0.5)"></span><span style="color:var(--accent-green)">Ritual Chain #${blockNum}</span><span style="color:var(--text-secondary);margin-left:auto">${gasPrice}</span>`;
+                    } else {
+                        el.innerHTML = `<span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent-orange);display:inline-block"></span><span style="color:var(--accent-orange)">Chain ${chainId}</span>`;
+                    }
+                });
+            } catch (e) {
+                // On RPC error, show offline
+                PRECOMPILES.forEach(pc => {
+                    const el = document.getElementById('live-' + pc.addr);
+                    if (!el) return;
+                    el.innerHTML = `<span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:#ff4444;display:inline-block"></span><span style="color:#ff4444">RPC Offline</span>`;
+                });
+            }
+        }
+
+        // --- AGENTS: LIVE ON-CHAIN STATS ---
+        async function fetchAgentStats() {
+            const RITUAL_WALLET = '0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948';
+            const SOVEREIGN_PRECOMPILE = '0x000000000000000000000000000000000000080C';
+            const PERSISTENT_PRECOMPILE = '0x0000000000000000000000000000000000000820';
+            
+            try {
+                const res = await fetch('https://rpc.ritualfoundation.org', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify([
+                        {jsonrpc:'2.0',method:'eth_chainId',params:[],id:1},
+                        {jsonrpc:'2.0',method:'eth_blockNumber',params:[],id:2},
+                        {jsonrpc:'2.0',method:'eth_gasPrice',params:[],id:3},
+                        {jsonrpc:'2.0',method:'eth_getBalance',params:[RITUAL_WALLET,'latest'],id:4},
+                        {jsonrpc:'2.0',method:'eth_getCode',params:[RITUAL_WALLET,'latest'],id:5},
+                        {jsonrpc:'2.0',method:'eth_getCode',params:[SOVEREIGN_PRECOMPILE,'latest'],id:6},
+                        {jsonrpc:'2.0',method:'eth_getCode',params:[PERSISTENT_PRECOMPILE,'latest'],id:7}
+                    ])
+                });
+                const data = await res.json();
+                if (!Array.isArray(data)) throw new Error('Invalid response');
+                
+                let chainId = '—', blockNum = '—', gasPrice = '—', walletBal = '—', walletCode = 0, sovCode = 0, perCode = 0;
+                
+                data.forEach(r => {
+                    if (r.id === 1) chainId = parseInt(r.result, 16);
+                    if (r.id === 2) blockNum = parseInt(r.result, 16).toLocaleString();
+                    if (r.id === 3) gasPrice = (parseInt(r.result, 16) / 1e9).toFixed(2) + ' gwei';
+                    if (r.id === 4) walletBal = (parseInt(r.result, 16) / 1e18).toFixed(2);
+                    if (r.id === 5) walletCode = ((r.result || '0x').length / 2) - 1;
+                    if (r.id === 6) sovCode = ((r.result || '0x').length / 2) - 1;
+                    if (r.id === 7) perCode = ((r.result || '0x').length / 2) - 1;
+                });
+                
+                const isRitual = chainId === 1979;
+                
+                // Update stat cards
+                const setEl = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+                setEl('agentChainId', isRitual ? '⚡ Ritual Testnet' : `Chain #${chainId}`);
+                setEl('agentBlockNum', blockNum);
+                setEl('agentGasPrice', gasPrice);
+                setEl('agentWalletBal', walletBal + ' MON');
+                setEl('agentWalletCode', (walletCode / 1024).toFixed(1) + ' KB deployed');
+                setEl('agentSovStatus', sovCode > 0 ? '🟢 Active' : '🔴 Pending');
+                setEl('agentPerStatus', perCode > 0 ? '🟢 Active' : '🔴 Pending');
+                
+                // Update badge classes
+                document.querySelectorAll('#tab-agents .live-indicator').forEach(el => {
+                    el.style.background = isRitual ? 'var(--accent-green)' : '#ff4444';
+                    el.style.boxShadow = isRitual ? '0 0 8px rgba(0,255,136,0.6)' : '0 0 8px rgba(255,68,68,0.6)';
+                });
+            } catch(e) {
+                ['agentChainId','agentBlockNum','agentGasPrice','agentWalletBal','agentWalletCode','agentSovStatus','agentPerStatus'].forEach(id => {
+                    const e = document.getElementById(id);
+                    if (e) e.textContent = '—';
+                });
+            }
+        }
+
+        // --- SKILLS DATA ---
+        const SKILLS = [
+            { name:'ritual-dapp-skills', category:'meta', desc:'Master manifest. Entry point for all Ritual dApp skills — build pipeline, precompile catalog, agent specs.' },
+            { name:'precompile-llm', category:'precompile', desc:'LLM inference precompile ABI + examples. Query models via 0x0802, handle responses, gas estimation.' },
+            { name:'precompile-http', category:'precompile', desc:'HTTP precompile ABI + examples. Fetch external APIs from contracts via 0x0801.' },
+            { name:'precompile-long-http', category:'precompile', desc:'Long HTTP precompile with callback pattern. 0x0810 for extended requests.' },
+            { name:'precompile-multimodal-image', category:'precompile', desc:'Image AI precompile. Vision analysis and generation via 0x0824.' },
+            { name:'precompile-multimodal-audio', category:'precompile', desc:'Audio AI precompile. Speech and sound processing via 0x0834.' },
+            { name:'precompile-multimodal-video', category:'precompile', desc:'Video AI precompile. Frame analysis via 0x0844.' },
+            { name:'precompile-agents-persistent', category:'precompile', desc:'Persistent Agent precompile. Stateful memory agent via 0x0820.' },
+            { name:'precompile-agents-sovereign', category:'precompile', desc:'Sovereign Agent precompile. Autonomous wallet agent via 0x080C.' },
+            { name:'precompile-onx', category:'precompile', desc:'ONX token precompile. Native token operations via 0x0900.' },
+            { name:'precompile-ed25519', category:'precompile', desc:'Ed25519 signature verification. Cryptographic proofs via 0x0910.' },
+            { name:'precompile-scheduler', category:'precompile', desc:'Scheduler precompile. Timed execution via 0x0920.' },
+            { name:'precompile-secrets', category:'precompile', desc:'Secrets precompile. Encrypted storage via 0x0930.' },
+            { name:'precompile-x402', category:'precompile', desc:'X402 payment protocol. Invoicing and payments via 0x0940.' },
+            { name:'precompile-passkey', category:'precompile', desc:'Passkey authentication. WebAuthn via 0x0950.' },
+            { name:'precompile-passkey-sign', category:'precompile', desc:'Passkey signing. Transaction auth via 0x0960.' },
+            { name:'precompile-passkey-recovery', category:'precompile', desc:'Passkey recovery. Account restoration via 0x0970.' },
+            { name:'ritual-llm-precompile-backend', category:'fullstack', desc:'Build Node.js backends that integrate Ritual LLM precompile for AI-powered dApps.' },
+            { name:'ritual-dapp-ai-chat-integration', category:'fullstack', desc:'Replace demo features with real Ritual AI chat integration in dApps.' },
+            { name:'ritual-agent-deployment', category:'fullstack', desc:'Deploy and register AI agents on Ritual Chain using factory contracts.' },
+            { name:'ritual-sovereign-multi-deploy', category:'fullstack', desc:'Deploy multiple sovereign agents for friends/clients with individual wallets.' },
+            { name:'ritual-dapp-wallet', category:'contract', desc:'RitualWallet integration for dApps. Deposit, withdraw, manage agent funds.' },
+            { name:'ritual-dapp-testing', category:'contract', desc:'Testing patterns for Ritual dApps. Precompile mocks, async job simulation.' },
+            { name:'ritual-chain-llm-precompile', category:'contract', desc:'Call Ritual Chain on-chain LLM inference precompile 0x0802 from Solidity.' },
+            { name:'commit-reveal-pattern', category:'contract', desc:'Commit-reveal flow in Solidity for privacy-preserving on-chain operations.' },
+            { name:'nextjs-web3-stack-setup', category:'fullstack', desc:'Complete Next.js 15 + Wagmi v2 + RainbowKit + Viem setup for Ritual dApps.' },
+            { name:'nft-mint-web-ui', category:'fullstack', desc:'Build web UI for NFT minting bots with multi-wallet support.' },
+            { name:'web3-dapp-demo-mode-testnet', category:'fullstack', desc:'Dual-mode (demo + real) trading system for Web3 dApps on testnet.' },
+            { name:'web3-frontend-contract-validation', category:'fullstack', desc:'Validate user actions in frontend before sending transactions to Ritual Chain.' },
+            { name:'vercel-contract-event-history', category:'fullstack', desc:'Query Ritual Chain contract events directly from Vercel frontend.' },
+            { name:'vercel-web3-static-abi-fallback', category:'fullstack', desc:'Deploy web3 dApps to Vercel with static contract ABI fallback for Ritual contracts.' },
+            { name:'ritual-oracle-file-location-recovery', category:'reference', desc:'Locate correct version of Ritual Oracle files when git history is messy.' },
+            { name:'mobile-app-api-reverse-engineering', category:'reference', desc:'Extract API endpoints from mobile apps for Ritual dApp integration.' }
+        ];
+
+        function renderSkills() {
+            const grid = document.getElementById('skillsGrid');
+            if (!grid) return;
+            
+            // Render skeleton cards first
+            grid.innerHTML = SKILLS.map(s => {
+                const catClass = s.category === 'meta' ? 'cat-meta' : s.category === 'precompile' ? 'cat-precompile' : s.category === 'contract' ? 'cat-contract' : s.category === 'fullstack' ? 'cat-fullstack' : 'cat-reference';
+                const catLabel = s.category === 'meta' ? 'META' : s.category === 'precompile' ? 'PRECOMPILE' : s.category === 'contract' ? 'CONTRACT' : s.category === 'fullstack' ? 'FULL-STACK' : 'REFERENCE';
+                return `
+                <div class="skill-card" data-category="${s.category}" data-name="${s.name}">
+                    <div class="skill-header">
+                        <span class="skill-category-badge ${catClass}">${catLabel}</span>
+                        <span class="skill-name">${s.name}</span>
+                    </div>
+                    <div class="skill-desc">${s.desc}</div>
+                    <div class="skill-meta" id="skill-link-${s.name.replace(/[^a-zA-Z0-9]/g,'-')}" style="margin-top:8px;font-size:11px;color:var(--text-tertiary)"></div>
+                </div>`;
+            }).join('');
+
+            // Fetch GitHub repo stats
+            fetchGitHubStats();
+        }
+
+        async function fetchGitHubStats() {
+            try {
+                const res = await fetch('https://api.github.com/repos/ritual-foundation/ritual-dapp-skills', {
+                    headers: { 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (!res.ok) return;
+                const repo = await res.json();
+                
+                // Update repo stats in the tab header
+                const statEl = document.getElementById('skillsRepoStats');
+                if (statEl) {
+                    statEl.innerHTML = `
+                        ⭐ ${repo.stargazers_count.toLocaleString()} &nbsp;·&nbsp;
+                        🔀 ${repo.forks_count.toLocaleString()} &nbsp;·&nbsp;
+                        ⚠️ ${repo.open_issues_count} issues &nbsp;·&nbsp;
+                        🕐 Updated ${new Date(repo.updated_at).toLocaleDateString()}
+                    `;
+                }
+            } catch(e) {
+                // GitHub API rate-limited or offline — ignore silently
+            }
+        }
+
+        function filterSkills() {
+            const search = (document.getElementById('skillSearch')?.value || '').toLowerCase();
+            const filter = document.getElementById('skillFilter')?.value || 'all';
+            document.querySelectorAll('#skillsGrid .skill-card').forEach(card => {
+                const name = (card.dataset.name || '').toLowerCase();
+                const cat = card.dataset.category;
+                const matchSearch = !search || name.includes(search) || card.querySelector('.skill-desc')?.textContent.toLowerCase().includes(search);
+                const matchFilter = filter === 'all' || cat === filter;
+                card.classList.toggle('hidden', !(matchSearch && matchFilter));
+            });
+        }
+
+        // --- HOOK INTO SWITCHTAB ---
+        const _originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            _originalSwitchTab(tabName);
+            if (tabName === 'precompiles' && document.getElementById('precompileGrid')?.children.length === 0) renderPrecompiles();
+            if (tabName === 'agents') fetchAgentStats();
+            if (tabName === 'skills' && document.getElementById('skillsGrid')?.children.length === 0) renderSkills();
+        };
+
+        // --- EAGER PRELOAD on DOM ready ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pre-render static content
+            setTimeout(() => {
+                renderPrecompiles();
+                renderSkills();
+            }, 2000);
+        });
     </script>
 </body>
 </html>
