@@ -2706,9 +2706,15 @@ ritual-oracle-two.vercel.app
                 showToast('Please connect your wallet first', true);
                 return;
             }
+            // Redirect to official Ritual Agent deployer for persistent agents
+            if (type === 'persistent') {
+                window.open('https://agents.ritualfoundation.org/', '_blank');
+                showToast('Opening Ritual Agent Deployer...', false);
+                return;
+            }
             const modal = document.getElementById('deployModal');
             const title = document.getElementById('deployModalTitle');
-            title.textContent = type === 'sovereign' ? '🚀 Deploy Sovereign Agent' : '🔄 Deploy Persistent Agent';
+            title.textContent = '🚀 Deploy Sovereign Agent';
             document.getElementById('deployAgentType').value = type;
             modal.style.display = 'flex';
         }
