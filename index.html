@@ -2699,7 +2699,123 @@ ritual-oracle-two.vercel.app
                 dropdown.style.display = 'none';
             }
         });
+
+        // --- DEPLOY AGENT MODAL ---
+        function showDeployModal(type) {
+            if (!userAddress || !signer) {
+                showToast('Please connect your wallet first', true);
+                return;
+            }
+            const modal = document.getElementById('deployModal');
+            const title = document.getElementById('deployModalTitle');
+            title.textContent = type === 'sovereign' ? '🚀 Deploy Sovereign Agent' : '🔄 Deploy Persistent Agent';
+            document.getElementById('deployAgentType').value = type;
+            modal.style.display = 'flex';
+        }
+
+        function closeDeployModal() {
+            document.getElementById('deployModal').style.display = 'none';
+        }
+
+        async function deployAgent() {
+            if (!signer) {
+                showToast('Wallet not connected', true);
+                return;
+            }
+
+            const type = document.getElementById('deployAgentType').value;
+            const name = document.getElementById('agentName').value.trim();
+            const model = document.getElementById('agentModel').value;
+            const interval = document.getElementById('agentInterval').value;
+
+            if (!name) { showToast('Please enter agent name', true); return; }
+
+            const deployBtn = document.getElementById('deploySubmitBtn');
+            deployBtn.textContent = '⏳ Deploying...';
+            deployBtn.disabled = true;
+
+            try {
+                // Build transaction to RitualWallet with generic agent creation
+                // Using createAgent(string name, uint8 agentType, uint256 interval, string model)
+                const iface = new ethers.utils.Interface([
+                    'function createAgent(string name, uint8 agentType, uint256 interval, string model) external returns (address)'
+                ]);
+                
+                const agentType = type === 'sovereign' ? 0 : 1;
+                const intervalSec = parseInt(interval);
+                
+                const data = iface.encodeFunctionData('createAgent', [name, agentType, intervalSec, model]);
+                
+                const tx = await signer.sendTransaction({
+                    to: '0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948',
+                    data: data,
+                    value: 0
+                });
+
+                showToast(`Agent deployment submitted! TX: ${tx.hash.slice(0,10)}...`, false);
+                addLogEntry(`🚀 Agent "${name}" deployment tx: ${tx.hash.slice(0,10)}...`);
+                
+                closeDeployModal();
+                
+                // Refresh activity feed after a short delay
+                setTimeout(fetchActivityFeed, 5000);
+                
+            } catch (err) {
+                showToast('Deployment failed: ' + err.message, true);
+            } finally {
+                deployBtn.textContent = '🚀 Deploy';
+                deployBtn.disabled = false;
+            }
+        }
+
+        // Close deploy modal on outside click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('deployModal');
+            if (modal && e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     </script>
+
+    <!-- DEPLOY AGENT MODAL -->
+    <div id="deployModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center">
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:12px;padding:24px;width:420px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h3 id="deployModalTitle" style="color:var(--accent-green);font-size:16px;margin:0">🚀 Deploy Agent</h3>
+                <button onclick="closeDeployModal()" style="background:none;border:none;color:var(--text-tertiary);font-size:20px;cursor:pointer;padding:0">✕</button>
+            </div>
+            
+            <input type="hidden" id="deployAgentType" value="sovereign">
+            
+            <div style="margin-bottom:14px">
+                <label style="display:block;color:var(--text-secondary);font-size:11px;margin-bottom:4px;font-family:'Courier New',monospace">Agent Name</label>
+                <input id="agentName" type="text" placeholder="e.g. My Trading Bot" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;box-sizing:border-box">
+            </div>
+            
+            <div style="margin-bottom:14px">
+                <label style="display:block;color:var(--text-secondary);font-size:11px;margin-bottom:4px;font-family:'Courier New',monospace">AI Model</label>
+                <select id="agentModel" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;box-sizing:border-box">
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                    <option value="llama-3.1-70b">Llama 3.1 70B</option>
+                    <option value="mistral-large">Mistral Large</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom:20px">
+                <label style="display:block;color:var(--text-secondary);font-size:11px;margin-bottom:4px;font-family:'Courier New',monospace">Execution Interval (seconds)</label>
+                <input id="agentInterval" type="number" value="3600" min="60" max="86400" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;box-sizing:border-box">
+                <div style="color:var(--text-tertiary);font-size:10px;margin-top:4px">How often the agent wakes up (60s — 24h)</div>
+            </div>
+            
+            <button id="deploySubmitBtn" onclick="deployAgent()" style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,255,136,0.2),rgba(0,200,255,0.2));border:1px solid var(--accent-green);border-radius:8px;color:var(--accent-green);font-size:14px;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='0 0 20px rgba(0,255,136,0.4)'" onmouseout="this.style.boxShadow='none'">
+                🚀 Deploy
+            </button>
+            <div style="text-align:center;margin-top:10px;color:var(--text-tertiary);font-size:10px;font-family:'Courier New',monospace">
+                Gas will be estimated automatically · Deploys to Ritual Chain via RitualWallet
+            </div>
+        </div>
+    </div>
 
 
     <!-- ═══════════════════════════════════════════ -->
@@ -2790,6 +2906,7 @@ ritual-oracle-two.vercel.app
                     <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Own Wallet</span>
                 </div>
                 <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/sovereign-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
+                <button onclick="showDeployModal('sovereign')" class="btn btn-outline btn-sm" style="display:inline-block;margin-left:8px;padding:8px 16px;background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,200,255,0.15));border:1px solid var(--accent-green);border-radius:6px;color:var(--accent-green);font-size:12px;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='0 0 16px rgba(0,255,136,0.35)'" onmouseout="this.style.boxShadow='none'">🚀 Deploy Agent</button>
             </div>
 
             <!-- Persistent Agent -->
