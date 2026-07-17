@@ -2984,10 +2984,48 @@ ritual-oracle-two.vercel.app
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: SKILLS -->
+        <!-- Inference Test Console — LLM Playground -->
+        <div class="info-card" style="margin-top:16px;border-color:rgba(192,132,252,0.3)">
+            <h3 style="color:#c084fc;font-size:14px;margin-bottom:4px">🧪 Inference Test Console</h3>
+            <p style="color:var(--text-tertiary);font-size:11px;margin-bottom:16px">Test Ritual's on-chain LLM precompile (0x0802). Connect wallet to send real TX, or use simulation mode.</p>
+            
+            <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+                <select id="inferenceMode" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
+                    <option value="simulate">🔮 Simulation Mode</option>
+                    <option value="onchain">⛓️ On-Chain (0x0802)</option>
+                    <option value="http">🌐 HTTP Precompile (0x0801)</option>
+                </select>
+                <select id="inferenceModel" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
+                    <option value="zai-org/GLM-4.7-FP8">GLM-4.7-FP8 (64K)</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                    <option value="llama-3.1-70b">Llama 3.1 70B</option>
+                </select>
+            </div>
+            
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <textarea id="inferencePrompt" placeholder="Ask the on-chain LLM anything... e.g. 'What is Ritual Chain?' or 'Generate a Solidity function for...'" style="flex:1;min-height:80px;padding:12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;resize:vertical;box-sizing:border-box"></textarea>
+            </div>
+            
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">
+                <button id="inferenceSendBtn" onclick="runInference()" style="padding:10px 20px;background:linear-gradient(135deg,rgba(192,132,252,0.2),rgba(0,204,255,0.2));border:1px solid #c084fc;border-radius:8px;color:#c084fc;font-size:13px;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='0 0 16px rgba(192,132,252,0.4)'" onmouseout="this.style.boxShadow='none'">
+                    🧠 Run Inference
+                </button>
+                <span id="inferenceGas" style="color:var(--text-tertiary);font-size:11px;font-family:'Courier New',monospace">Gas: —</span>
+                <span id="inferenceStatus" style="color:var(--text-tertiary);font-size:11px;font-family:'Courier New',monospace"></span>
+            </div>
+            
+            <div id="inferenceResponse" style="display:none;padding:14px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:8px;max-height:300px;overflow-y:auto">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="color:#c084fc;font-size:11px;font-family:'Courier New',monospace">🤖 Response</span>
+                    <button onclick="copyInferenceResult()" style="background:none;border:1px solid var(--border-primary);border-radius:4px;color:var(--text-tertiary);font-size:10px;font-family:'Courier New',monospace;cursor:pointer;padding:2px 8px">📋 Copy</button>
+                </div>
+                <pre id="inferenceOutput" style="color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;white-space:pre-wrap;word-break:break-word;margin:0"></pre>
+                <div id="inferenceMeta" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-primary);color:var(--text-tertiary);font-size:10px;font-family:'Courier New',monospace"></div>
+            </div>
+        </div>
+    </div>
     <!-- ═══════════════════════════════════════════ -->
     <div class="tab-content" id="tab-skills">
         <h2 style="color:var(--accent-cyan);font-size:18px;margin-bottom:8px">32+ Developer Skills</h2>
@@ -3598,6 +3636,189 @@ ritual-oracle-two.vercel.app
                 status.textContent = 'RPC unavailable — cannot fetch activity';
                 feed.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-tertiary);font-size:12px">⚠️ Unable to scan blocks. Check RPC connection.</div>`;
             }
+        }
+
+        // --- INFERENCE TEST CONSOLE ---
+        async function runInference() {
+            const prompt = document.getElementById('inferencePrompt').value.trim();
+            const mode = document.getElementById('inferenceMode').value;
+            const model = document.getElementById('inferenceModel').value;
+            const output = document.getElementById('inferenceOutput');
+            const meta = document.getElementById('inferenceMeta');
+            const resp = document.getElementById('inferenceResponse');
+            const gas = document.getElementById('inferenceGas');
+            const status = document.getElementById('inferenceStatus');
+            const btn = document.getElementById('inferenceSendBtn');
+
+            if (!prompt) { showToast('Enter a prompt first', true); return; }
+
+            btn.textContent = '⏳ Running...';
+            btn.disabled = true;
+            status.textContent = '';
+            gas.textContent = 'Gas: —';
+
+            const startTime = Date.now();
+
+            try {
+                if (mode === 'simulate') {
+                    // Deterministic simulation using prompt + block hash
+                    const block = await fetch('https://rpc.ritualfoundation.org', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ jsonrpc: '2.0', method: 'eth_getBlockByNumber', params: ['latest', false], id: 1 })
+                    }).then(r => r.json());
+                    
+                    const blockNumber = block.result?.number || 'latest';
+                    const blockHash = block.result?.hash || '0x0000';
+                    const seed = blockHash + prompt;
+                    const simGas = 150000 + Math.floor(prompt.length * 100);
+                    const latency = 800 + Math.floor(Math.random() * 700);
+                    
+                    // Smart simulation responses based on prompt keywords
+                    let response;
+                    const lower = prompt.toLowerCase();
+                    if (lower.includes('solidity') || lower.includes('contract') || lower.includes('function')) {
+                        response = `// Generated by Ritual LLM (${model})\n// Simulated on-chain response\n\npragma solidity ^0.8.20;\n\ncontract GeneratedContract {\n    address public owner;\n    \n    constructor() {\n        owner = msg.sender;\n    }\n    \n    /**\n     * ${prompt.slice(0, 60).replace(/\\n/g, ' ')}...\n     */\n    function executeAction(bytes calldata data) external returns (bool) {\n        // TEE-verified computation\n        // Hash: ${seed.slice(0, 16)}...\n        return true;\n    }\n}`;
+                    } else if (lower.includes('ritual') || lower.includes('what is')) {
+                        response = `Ritual Chain is a sovereign AI execution layer combining TEE (Trusted Execution Environment) compute with on-chain verification.\n\nKey features:\n• 16 native precompiles for AI operations (LLM, HTTP, multimodal)\n• TEE-hosted models (zai-org/GLM-4.7-FP8, 64K context)\n• Chain ID: 1979 | RPC: rpc.ritualfoundation.org\n• RitualWallet: 0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948\n\nThis response was simulated using block ${blockNumber} as entropy source. For real on-chain inference, connect your wallet and switch to On-Chain mode.`;
+                    } else if (lower.includes('defi') || lower.includes('swap') || lower.includes('token')) {
+                        response = `📊 DeFi Analysis (simulated via ${model})\n\nBased on current chain state at block ${blockNumber}:\n\n1. Liquidity pools show balanced distribution\n2. Recommended: implement TWAP-based price oracle\n3. Gas optimization: batch operations via multicall\n\n⚠️ This is a simulation. Real on-chain inference provides TEE-verified responses.`;
+                    } else if (lower.includes('nft') || lower.includes('mint')) {
+                        response = `🎨 NFT Strategy (${model} @ block ${blockNumber})\n\n• Gas-efficient minting: use ERC721A pattern\n• Metadata: store on IPFS with content-addressed URIs\n• Royalty: implement EIP-2981\n• Whitelist: Merkle tree verification\n\nSample contract available at: ritual-foundation/ritual-dapp-skills`;
+                    } else {
+                        response = `🧠 Ritual LLM Response (Simulated)\nModel: ${model}\nBlock: #${blockNumber}\n\nYour prompt: "${prompt.slice(0, 80)}${prompt.length > 80 ? '...' : ''}"\n\nThis is a deterministic simulation using block hash as entropy. For TEE-verified responses, connect your wallet and switch to On-Chain mode. The GLM-4.7-FP8 model runs inside a secure enclave on Ritual's TEE fleet.\n\nEstimated real on-chain latency: 10-60s\nGas estimate: 300,000 - 500,000`;
+                    }
+
+                    await new Promise(r => setTimeout(r, latency));
+                    const elapsed = Date.now() - startTime;
+                    
+                    output.textContent = response;
+                    meta.innerHTML = `🔄 Mode: Simulation · 📦 Model: ${model} · ⏱️ ${elapsed}ms · ⛽ Sim Gas: ${simGas.toLocaleString()} · 🔗 Block: #${blockNumber}`;
+                    gas.textContent = `Sim Gas: ${simGas.toLocaleString()}`;
+                    
+                } else if (mode === 'onchain') {
+                    if (!signer || !userAddress) {
+                        showToast('Connect wallet for on-chain inference', true);
+                        btn.textContent = '🧠 Run Inference';
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    // Build LLM precompile call with 30-field ABI
+                    const LLM_PRECOMPILE = '0x0000000000000000000000000000000000000802';
+                    const iface = new ethers.utils.Interface([
+                        'function infer(address,bytes[],uint256,bytes[],bytes,string,string,int256,string,bool,int256,string,string,uint256,bool,int256,string,bytes,int256,string,string,bool,int256,bytes,bytes,int256,int256,string,bool,(string,string,string))'
+                    ]);
+                    
+                    const messages = JSON.stringify([{ role: 'user', content: prompt }]);
+                    
+                    const data = iface.encodeFunctionData('infer', [
+                        userAddress,                    // executor (using user address as placeholder)
+                        [],                              // bytes[] 
+                        0n,                              // uint256
+                        [],                              // bytes[]
+                        '0x',                            // bytes
+                        messages,                        // messagesJson
+                        model,                           // model
+                        -1n,                             // maxTokens (-1 = default)
+                        '',                              // stop
+                        false,                           // stream
+                        -1n,                             // maxCompletionTokens
+                        '',                              // responseFormat
+                        '',                              // seed
+                        0n,                              // n
+                        false,                           // logprobs
+                        -1n,                             // topLogprobs
+                        '',                              // user
+                        '0x',                            // extraHeaders
+                        700n,                            // temperature (×1000)
+                        '',                              // frequencyPenalty
+                        '',                              // presencePenalty
+                        false,                           // parallelToolCalls
+                        1000n,                           // topP (×1000)
+                        '0x',                            // tools
+                        '0x',                            // toolChoice
+                        -1n,                             // timeout
+                        -1n,                             // maxRetries
+                        '',                              // provider
+                        false,                           // requireConsensus
+                        ['', '', '']                     // convoHistory
+                    ]);
+
+                    try {
+                        const tx = await signer.sendTransaction({
+                            to: LLM_PRECOMPILE,
+                            data: data,
+                            gasLimit: 500000n
+                        });
+
+                        status.textContent = `TX submitted: ${tx.hash.slice(0,10)}...`;
+                        gas.textContent = `Gas limit: 500,000`;
+
+                        const receipt = await tx.wait(1);
+                        const elapsed = Date.now() - startTime;
+
+                        // Try to decode spcCalls from raw receipt
+                        try {
+                            const rawReceipt = await provider.send('eth_getTransactionReceipt', [tx.hash]);
+                            if (rawReceipt && rawReceipt.spcCalls && rawReceipt.spcCalls.length > 0) {
+                                const abiCoder = new ethers.utils.AbiCoder();
+                                const decoded = abiCoder.decode(['bool', 'bytes', 'bytes', 'string', '(string,string,string)'], rawReceipt.spcCalls[0].output);
+                                const text = new TextDecoder().decode(ethers.utils.arrayify(decoded[1]));
+                                output.textContent = text;
+                                meta.innerHTML = `⛓️ On-Chain · 📦 ${model} · ⏱️ ${elapsed}ms · ⛽ ${receipt.gasUsed?.toString() || 'N/A'} gas · 🔗 TX: ${tx.hash}`;
+                            } else {
+                                output.textContent = `TX confirmed but no SPC output.\nReceipt: ${JSON.stringify({ status: receipt.status, blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed?.toString() }, null, 2)}\n\n⚠️ Note: Direct EOA transactions may not trigger async LLM execution. For full TEE inference, use RitualWallet (0x532F...) as proxy.`;
+                                meta.innerHTML = `⛓️ On-Chain · ⏱️ ${elapsed}ms · ⛽ ${receipt.gasUsed?.toString() || 'N/A'} gas · 🔗 TX: ${tx.hash}`;
+                            }
+                        } catch (decodeErr) {
+                            output.textContent = `TX mined but response decoding failed.\n\nRaw TX: ${tx.hash}\nBlock: ${receipt.blockNumber}\n\nTry switching to Simulation mode for instant results.`;
+                            meta.innerHTML = `⛓️ On-Chain · ⏱️ ${elapsed}ms · ⛽ ${receipt.gasUsed?.toString() || 'N/A'} gas`;
+                        }
+                        
+                    } catch (txErr) {
+                        if (txErr.message.includes('not registered in TEE registry')) {
+                            output.textContent = `⚠️ Executor not registered in TEE registry.\n\nThe current executor address is not whitelisted for LLM precompile calls. Ritual's TEE fleet uses a separate executor registry.\n\nRecommendations:\n1. Switch to Simulation mode for testing\n2. Use RitualWallet (0x532F...) as proxy\n3. Check Ritual Discord for active executors`;
+                        } else {
+                            output.textContent = `❌ TX failed: ${txErr.message}`;
+                        }
+                        meta.innerHTML = `⛓️ On-Chain · ❌ Failed · ${txErr.message.slice(0, 80)}`;
+                    }
+                    
+                } else if (mode === 'http') {
+                    if (!signer || !userAddress) {
+                        showToast('Connect wallet for HTTP precompile', true);
+                        btn.textContent = '🧠 Run Inference';
+                        btn.disabled = false;
+                        return;
+                    }
+                    output.textContent = `🌐 HTTP Precompile (0x0801) mode selected.\n\nThis precompile allows on-chain contracts to make HTTP requests to external APIs. For LLM inference via HTTP, you would:\n\n1. Call 0x0801 with target URL + headers + body\n2. Receive response in callback\n3. Parse LLM API response\n\nHowever, this requires API keys and is rate-limited. For production use, Simulation mode or direct LLM precompile (0x0802) is recommended.\n\nSwitch to Simulation mode for instant results.`;
+                    meta.innerHTML = `🌐 HTTP Precompile · Info only · Requires external API`;
+                }
+
+                resp.style.display = 'block';
+                status.textContent = '✅ Complete';
+                status.style.color = 'var(--accent-green)';
+                
+            } catch (err) {
+                output.textContent = `❌ Error: ${err.message}`;
+                meta.innerHTML = `❌ Failed · ${err.message.slice(0, 80)}`;
+                resp.style.display = 'block';
+                status.textContent = '❌ Failed';
+                status.style.color = '#ff4444';
+            } finally {
+                btn.textContent = '🧠 Run Inference';
+                btn.disabled = false;
+            }
+        }
+
+        function copyInferenceResult() {
+            const text = document.getElementById('inferenceOutput').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            }).catch(() => {
+                showToast('Copy failed — select and copy manually', true);
+            });
         }
 
         // --- BUILD PIPELINE: LIVE GITHUB ACTIVITY ---
