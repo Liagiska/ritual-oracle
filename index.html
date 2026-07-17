@@ -2735,25 +2735,46 @@ ritual-oracle-two.vercel.app
             deployBtn.disabled = true;
 
             try {
-                // Build transaction to RitualWallet with generic agent creation
-                // Using createAgent(string name, uint8 agentType, uint256 interval, string model)
-                const iface = new ethers.utils.Interface([
-                    'function createAgent(string name, uint8 agentType, uint256 interval, string model) external returns (address)'
-                ]);
-                
                 const agentType = type === 'sovereign' ? 0 : 1;
                 const intervalSec = parseInt(interval);
                 
+                // Step 1: Estimate gas via eth_estimateGas
+                const iface = new ethers.utils.Interface([
+                    'function createAgent(string name, uint8 agentType, uint256 interval, string model) external returns (address)'
+                ]);
                 const data = iface.encodeFunctionData('createAgent', [name, agentType, intervalSec, model]);
+                const walletAddr = '0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948';
                 
+                let gasEstimate;
+                try {
+                    gasEstimate = await provider.estimateGas({
+                        to: walletAddr,
+                        data: data,
+                        from: userAddress
+                    });
+                } catch (gasErr) {
+                    // Fallback: use 500k
+                    gasEstimate = 500000n;
+                }
+                
+                // Step 2: Send transaction
                 const tx = await signer.sendTransaction({
-                    to: '0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948',
+                    to: walletAddr,
                     data: data,
+                    gasLimit: gasEstimate,
                     value: 0
                 });
 
-                showToast(`Agent deployment submitted! TX: ${tx.hash.slice(0,10)}...`, false);
-                addLogEntry(`🚀 Agent "${name}" deployment tx: ${tx.hash.slice(0,10)}...`);
+                showToast(`⏳ TX submitted: ${tx.hash.slice(0,10)}...`, false);
+                
+                // Step 3: Wait for confirmation
+                const receipt = await tx.wait(1);
+                
+                if (receipt.status === 1) {
+                    showToast(`✅ Agent "${name}" deployed! Block: #${receipt.blockNumber}`, false);
+                } else {
+                    showToast(`⚠️ TX reverted. Agent may still be registered. Check: ${tx.hash.slice(0,10)}...`, true);
+                }
                 
                 closeDeployModal();
                 
@@ -2761,7 +2782,16 @@ ritual-oracle-two.vercel.app
                 setTimeout(fetchActivityFeed, 5000);
                 
             } catch (err) {
-                showToast('Deployment failed: ' + err.message, true);
+                // Parse common errors
+                let msg = err.message;
+                if (msg.includes('user rejected')) {
+                    msg = 'Transaction rejected by user';
+                } else if (msg.includes('insufficient funds')) {
+                    msg = 'Insufficient MON for gas. Get from faucet.';
+                } else if (msg.includes('UNPREDICTABLE_GAS_LIMIT') || msg.includes('cannot estimate')) {
+                    msg = 'Contract method not found. RitualWallet may use different ABI. Check docs.';
+                }
+                showToast('Deployment failed: ' + msg, true);
             } finally {
                 deployBtn.textContent = '🚀 Deploy';
                 deployBtn.disabled = false;
@@ -2927,6 +2957,7 @@ ritual-oracle-two.vercel.app
                     <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Multi-Session</span>
                 </div>
                 <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/persistent-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
+                <button onclick="showDeployModal('persistent')" class="btn btn-accent btn-sm" style="margin-left:8px;padding:8px 16px;background:var(--accent-cyan);border:none;border-radius:6px;color:#000;font-size:12px;font-family:'Courier New',monospace;cursor:pointer">🔄 Deploy Agent</button>
             </div>
         </div>
 
