@@ -3028,12 +3028,12 @@ ritual-oracle-two.vercel.app
             <p style="color:var(--text-tertiary);font-size:11px;margin-bottom:16px">Test Ritual's on-chain LLM precompile (0x0802). Connect wallet to send real TX, or use simulation mode.</p>
             
             <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-                <select id="inferenceMode" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
+                <select id="inferenceModeSelect" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
                     <option value="simulate">🔮 Simulation Mode</option>
                     <option value="onchain">⛓️ On-Chain (0x0802)</option>
                     <option value="http">🌐 HTTP Precompile (0x0801)</option>
                 </select>
-                <select id="inferenceModel" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
+                <select id="inferenceModelSelect" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-primary);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:'Courier New',monospace;cursor:pointer">
                     <option value="zai-org/GLM-4.7-FP8">GLM-4.7-FP8 (64K)</option>
                     <option value="gpt-4o">GPT-4o</option>
                     <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
@@ -3678,8 +3678,10 @@ ritual-oracle-two.vercel.app
         // --- INFERENCE TEST CONSOLE ---
         async function runInference() {
             const prompt = document.getElementById('inferencePrompt').value.trim();
-            const mode = document.getElementById('inferenceMode').value;
-            const model = document.getElementById('inferenceModel').value;
+            const modeEl = document.getElementById('inferenceModeSelect');
+            const modelEl = document.getElementById('inferenceModelSelect');
+            const mode = modeEl?.value || 'simulate';
+            const model = modelEl?.value || 'glm-4.7-fp8';
             const output = document.getElementById('inferenceOutput');
             const meta = document.getElementById('inferenceMeta');
             const resp = document.getElementById('inferenceResponse');
