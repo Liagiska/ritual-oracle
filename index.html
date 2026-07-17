@@ -586,14 +586,17 @@
     margin-bottom: 12px;
 }
 .precompile-icon {
-    font-size: 24px;
+    font-size: 22px;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0,255,136,0.08);
+    background: rgba(0,184,204,0.06);
+    border: 1px solid rgba(0,184,204,0.12);
     border-radius: 8px;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 6px rgba(0,184,204,0.3);
 }
 .precompile-name {
     font-size: 15px;
@@ -2934,7 +2937,7 @@ ritual-oracle-two.vercel.app
             <!-- Sovereign Agent -->
             <div class="info-card" style="border-color:rgba(192,132,252,0.3)">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-                    <span style="font-size:28px">👑</span>
+                    <span style="font-size:26px;color:var(--accent-cyan);text-shadow:0 0 8px rgba(0,184,204,0.4)">◆</span>
                     <div>
                         <h3 style="color:#c084fc;font-size:16px;margin:0">Sovereign Agent</h3>
                         <code style="color:var(--text-secondary);font-size:11px">0x080C</code>
@@ -2944,9 +2947,9 @@ ritual-oracle-two.vercel.app
                     Fully autonomous agent with its own wallet, identity, and execution schedule. Deploys independently and runs perpetually on-chain via the Scheduler. Can own assets, make decisions, and interact with other contracts — no human babysitting required.
                 </p>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-                    <span class="badge" style="border-color:#c084fc;color:#c084fc;background:rgba(192,132,252,0.1)">Long Async (Callback)</span>
-                    <span class="badge" style="border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,204,255,0.1)">Scheduler-Controlled</span>
-                    <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Own Wallet</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Long Async (Callback)</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Scheduler-Controlled</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Own Wallet</span>
                 </div>
                 <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/sovereign-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
                 <button onclick="showDeployModal('sovereign')" class="btn btn-outline btn-sm" style="display:inline-block;margin-left:8px;padding:8px 16px;background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,200,255,0.15));border:1px solid var(--accent-green);border-radius:6px;color:var(--accent-green);font-size:12px;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='0 0 16px rgba(0,255,136,0.35)'" onmouseout="this.style.boxShadow='none'">🚀 Deploy Agent</button>
@@ -2955,7 +2958,7 @@ ritual-oracle-two.vercel.app
             <!-- Persistent Agent -->
             <div class="info-card" style="border-color:rgba(0,204,255,0.3)">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-                    <span style="font-size:28px">🔄</span>
+                    <span style="font-size:26px;color:var(--accent-cyan);text-shadow:0 0 8px rgba(0,184,204,0.4)">⬡</span>
                     <div>
                         <h3 style="color:var(--accent-cyan);font-size:16px;margin:0">Persistent Agent</h3>
                         <code style="color:var(--text-secondary);font-size:11px">0x0820</code>
@@ -2965,9 +2968,9 @@ ritual-oracle-two.vercel.app
                     Stateful agent that maintains context across multiple interactions. Remembers conversation history, learns from past executions, and builds up knowledge over time. Perfect for chatbots, assistants, and any agent that needs persistent memory.
                 </p>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-                    <span class="badge" style="border-color:var(--accent-orange);color:var(--accent-orange);background:rgba(255,166,0,0.1)">Long Async (Callback)</span>
-                    <span class="badge" style="border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,204,255,0.1)">Stateful Memory</span>
-                    <span class="badge" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,136,0.1)">Multi-Session</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Long Async (Callback)</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Stateful Memory</span>
+                    <span class="badge" style="border-color:var(--accent-tag);color:var(--accent-tag);background:rgba(122,138,154,0.1)">Multi-Session</span>
                 </div>
                 <a href="https://github.com/ritual-foundation/ritual-dapp-skills/tree/main/examples/persistent-agent" target="_blank" class="btn btn-outline btn-sm" style="display:inline-block;padding:8px 16px;border:1px solid var(--border-primary);border-radius:6px;color:var(--accent-green);text-decoration:none;font-size:12px;font-family:'Courier New',monospace">View Example →</a>
                 <button onclick="showDeployModal('persistent')" class="btn btn-accent btn-sm" style="margin-left:8px;padding:8px 16px;background:var(--accent-cyan);border:none;border-radius:6px;color:#000;font-size:12px;font-family:'Courier New',monospace;cursor:pointer">🔄 Deploy Agent</button>
@@ -3404,22 +3407,22 @@ ritual-oracle-two.vercel.app
 
         // --- PRECOMPILES DATA ---
         const PRECOMPILES = [
-            { name:'LLM Inference', addr:'0x0802', model:'sync', icon:'🧠', desc:'Run LLM inference directly from smart contracts. Query GPT, Claude, and open models on-chain.', tags:['LLM','Inference','Chat Completion'] },
-            { name:'HTTP', addr:'0x0801', model:'short-async', icon:'🌐', desc:'Make HTTP requests from smart contracts. Fetch API data, query external services, bridge web2 to web3.', tags:['HTTP','REST','Webhook'] },
-            { name:'Long HTTP', addr:'0x0810', model:'long-async', icon:'⏳', desc:'Extended HTTP requests with callback. For long-running external API calls that exceed block time.', tags:['HTTP','Callback','Long-running'] },
-            { name:'Multimodal Image', addr:'0x0824', model:'long-async', icon:'🖼️', desc:'Process images with AI models. Vision analysis, image generation, object detection on-chain.', tags:['Vision','Image','Multimodal'] },
-            { name:'Multimodal Audio', addr:'0x0834', model:'long-async', icon:'🎵', desc:'Audio processing precompile. Speech-to-text, audio generation, sound classification.', tags:['Audio','Speech','TTS'] },
-            { name:'Multimodal Video', addr:'0x0844', model:'long-async', icon:'🎬', desc:'Video analysis precompile. Frame extraction, action recognition, video understanding.', tags:['Video','Vision','Analysis'] },
-            { name:'Agents - Persistent', addr:'0x0820', model:'long-async', icon:'🔄', desc:'Stateful AI agents with persistent memory across sessions. Remembers context and learns over time.', tags:['Agent','Memory','Stateful'] },
-            { name:'Agents - Sovereign', addr:'0x080C', model:'long-async', icon:'👑', desc:'Fully autonomous agents with their own wallet. Self-scheduled execution, independent decision-making.', tags:['Agent','Autonomous','Wallet'] },
-            { name:'ONX Token', addr:'0x0900', model:'sync', icon:'💎', desc:'Native token operations. Transfer, approve, and query ONX balances directly from contracts.', tags:['Token','Transfer','Balance'] },
-            { name:'Ed25519', addr:'0x0910', model:'sync', icon:'🔐', desc:'Ed25519 signature verification on-chain. Verify off-chain signatures for authentication and proofs.', tags:['Crypto','Signature','Verification'] },
-            { name:'Scheduler', addr:'0x0920', model:'cross-cutting', icon:'⏰', desc:'Schedule contract execution. Timed triggers, recurring jobs, and deferred actions for autonomous agents.', tags:['Scheduler','Cron','Automation'] },
-            { name:'Secrets', addr:'0x0930', model:'sync', icon:'🔒', desc:'Encrypted secret storage for smart contracts. Store API keys, credentials, and sensitive data on-chain.', tags:['Secrets','Encryption','Storage'] },
-            { name:'X402', addr:'0x0940', model:'short-async', icon:'💳', desc:'Payment protocol precompile. Accept crypto payments, handle invoices, and manage subscriptions.', tags:['Payment','Invoice','Billing'] },
-            { name:'Passkey', addr:'0x0950', model:'sync', icon:'🔑', desc:'WebAuthn passkey verification. Authenticate users with biometrics and hardware keys.', tags:['Auth','Passkey','WebAuthn'] },
-            { name:'Passkey Sign', addr:'0x0960', model:'sync', icon:'✍️', desc:'Sign transactions with passkeys. Secure transaction signing using WebAuthn credentials.', tags:['Auth','Signing','WebAuthn'] },
-            { name:'Passkey Recovery', addr:'0x0970', model:'cross-cutting', icon:'🔄', desc:'Account recovery via passkeys. Social recovery and key rotation for sovereign agents.', tags:['Recovery','Passkey','Security'] }
+            { name:'LLM Inference', addr:'0x0802', model:'sync', icon:'◇', desc:'Run LLM inference directly from smart contracts. Query GPT, Claude, and open models on-chain.', tags:['LLM','Inference','Chat Completion'] },
+            { name:'HTTP', addr:'0x0801', model:'short-async', icon:'◎', desc:'Make HTTP requests from smart contracts. Fetch API data, query external services, bridge web2 to web3.', tags:['HTTP','REST','Webhook'] },
+            { name:'Long HTTP', addr:'0x0810', model:'long-async', icon:'◉', desc:'Extended HTTP requests with callback. For long-running external API calls that exceed block time.', tags:['HTTP','Callback','Long-running'] },
+            { name:'Multimodal Image', addr:'0x0824', model:'long-async', icon:'◈', desc:'Process images with AI models. Vision analysis, image generation, object detection on-chain.', tags:['Vision','Image','Multimodal'] },
+            { name:'Multimodal Audio', addr:'0x0834', model:'long-async', icon:'▣', desc:'Audio processing precompile. Speech-to-text, audio generation, sound classification.', tags:['Audio','Speech','TTS'] },
+            { name:'Multimodal Video', addr:'0x0844', model:'long-async', icon:'▦', desc:'Video analysis precompile. Frame extraction, action recognition, video understanding.', tags:['Video','Vision','Analysis'] },
+            { name:'Agents - Persistent', addr:'0x0820', model:'long-async', icon:'⬡', desc:'Stateful AI agents with persistent memory across sessions. Remembers context and learns over time.', tags:['Agent','Memory','Stateful'] },
+            { name:'Agents - Sovereign', addr:'0x080C', model:'long-async', icon:'◆', desc:'Fully autonomous agents with their own wallet. Self-scheduled execution, independent decision-making.', tags:['Agent','Autonomous','Wallet'] },
+            { name:'ONX Token', addr:'0x0900', model:'sync', icon:'◇', desc:'Native token operations. Transfer, approve, and query ONX balances directly from contracts.', tags:['Token','Transfer','Balance'] },
+            { name:'Ed25519', addr:'0x0910', model:'sync', icon:'◎', desc:'Ed25519 signature verification on-chain. Verify off-chain signatures for authentication and proofs.', tags:['Crypto','Signature','Verification'] },
+            { name:'Scheduler', addr:'0x0920', model:'cross-cutting', icon:'◉', desc:'Schedule contract execution. Timed triggers, recurring jobs, and deferred actions for autonomous agents.', tags:['Scheduler','Cron','Automation'] },
+            { name:'Secrets', addr:'0x0930', model:'sync', icon:'◈', desc:'Encrypted secret storage for smart contracts. Store API keys, credentials, and sensitive data on-chain.', tags:['Secrets','Encryption','Storage'] },
+            { name:'X402', addr:'0x0940', model:'short-async', icon:'▣', desc:'Payment protocol precompile. Accept crypto payments, handle invoices, and manage subscriptions.', tags:['Payment','Invoice','Billing'] },
+            { name:'Passkey', addr:'0x0950', model:'sync', icon:'▦', desc:'WebAuthn passkey verification. Authenticate users with biometrics and hardware keys.', tags:['Auth','Passkey','WebAuthn'] },
+            { name:'Passkey Sign', addr:'0x0960', model:'sync', icon:'⬡', desc:'Sign transactions with passkeys. Secure transaction signing using WebAuthn credentials.', tags:['Auth','Signing','WebAuthn'] },
+            { name:'Passkey Recovery', addr:'0x0970', model:'cross-cutting', icon:'◆', desc:'Account recovery via passkeys. Social recovery and key rotation for sovereign agents.', tags:['Recovery','Passkey','Security'] }
         ];
 
         // --- PRECOMPILES: LIVE RENDERING WITH ON-CHAIN DATA ---
